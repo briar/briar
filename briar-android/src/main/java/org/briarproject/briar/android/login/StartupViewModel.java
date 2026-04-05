@@ -20,6 +20,7 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.telegram.TelegramAuthSession;
+import org.briarproject.briar.api.telegram.TelegramAuthSession.RecoverableErrorDetail;
 import org.briarproject.briar.api.telegram.TelegramAuthState;
 import org.briarproject.nullsafety.NotNullByDefault;
 
@@ -200,6 +201,10 @@ public class StartupViewModel extends AndroidViewModel
 
 	LiveData<TelegramAuthState> getTelegramAuthState() {
 		return telegramAuthState;
+	}
+
+	RecoverableErrorDetail getTelegramRecoverableErrorDetail() {
+		return telegramAuthSession.getRecoverableErrorDetail();
 	}
 
 	void submitTelegramLoginIdentifier() {

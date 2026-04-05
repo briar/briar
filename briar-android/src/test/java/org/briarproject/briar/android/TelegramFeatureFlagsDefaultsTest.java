@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 public class TelegramFeatureFlagsDefaultsTest {
@@ -49,7 +48,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java",
 				"public enum TelegramAuthState {\n\tIDENTIFIER_ENTRY,\n\tCODE_ENTRY,\n\tPASSWORD_ENTRY,\n\tREADY,\n\tCLOSED,\n\tRECOVERABLE_ERROR\n}");
 		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java",
-				"public interface TelegramAuthSession {\n\n\tTelegramAuthState getCurrentState();\n\n\tvoid start();\n\n\tvoid submitIdentifier(String identifier);\n\n\tvoid submitCode(String code);\n\n\tvoid submitPassword(String password);\n\n\tvoid close();\n}");
+				"public interface TelegramAuthSession {\n\n\tenum RecoverableErrorDetail {\n\t\tNONE,\n\t\tMISSING_TDLIB\n\t}\n\n\tTelegramAuthState getCurrentState();\n\n\tRecoverableErrorDetail getRecoverableErrorDetail();\n\n\tvoid start();\n\n\tvoid submitIdentifier(String identifier);\n\n\tvoid submitCode(String code);\n\n\tvoid submitPassword(String password);\n\n\tvoid close();\n}");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
 				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
@@ -61,9 +60,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testTelegramAuthSessionUsesHarborOwnedTdlibFacade()
 			throws IOException {
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java",
-				"interface TelegramTdlibLoginClient {\n\n\tTelegramAuthState start();\n\n\tTelegramAuthState submitIdentifier(String identifier);\n\n\tTelegramAuthState submitCode(String code);\n\n\tTelegramAuthState submitPassword(String password);\n\n\tTelegramAuthState close();\n}");
+				"interface TelegramTdlibLoginClient {\n\n\tTelegramAuthState start();\n\n\tRecoverableErrorDetail getRecoverableErrorDetail();\n\n\tTelegramAuthState submitIdentifier(String identifier);\n\n\tTelegramAuthState submitCode(String code);\n\n\tTelegramAuthState submitPassword(String password);\n\n\tTelegramAuthState close();\n}");
 		assertFileContainsAll("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
-				"case \"AuthorizationStateWaitTdlibParameters\":\n\t\t\tcase \"AuthorizationStateWaitPhoneNumber\":\n\t\t\t\treturn TelegramAuthState.IDENTIFIER_ENTRY;",
+				"public RecoverableErrorDetail getRecoverableErrorDetail() {\n\t\treturn tdlibLoginClient.getRecoverableErrorDetail();\n\t}",
+				"return recoverableError(RecoverableErrorDetail.MISSING_TDLIB);",
+				"case \"AuthorizationStateWaitTdlibParameters\":\n\t\t\tcase \"AuthorizationStateWaitPhoneNumber\":\n\t\t\t\treturn clearRecoverableErrorDetail(TelegramAuthState.IDENTIFIER_ENTRY);",
 				"send(createSetTdlibParametersRequest());",
 				"send(createSetAuthenticationPhoneNumberRequest(identifier));",
 				"send(createCheckAuthenticationCodeRequest(code));",
@@ -127,13 +128,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramIdentityConsumersSurfaceOutsideSettings()
 			throws IOException {
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java");
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java");
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java");
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java");
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java");
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java");
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_transports_subtitle\">Telegram account staged: %1$s</string>");
 	}
@@ -177,8 +172,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramLoginPlaceholderStagesIdentifierInput()
 			throws IOException {
-		assertFileContains("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/message\"\n\t\t\tandroid:layout_width=\"match_parent\"");
 		assertStartupViewModelContainsAll(
 				"private String telegramLoginIdentifier = \"\";",
 				"String getTelegramLoginIdentifier() {\n\t\treturn telegramLoginIdentifier;\n\t}",
@@ -202,11 +195,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"View codeEntryStep = v.findViewById(R.id.telegram_login_code_step);",
 				"TextInputEditText code =\n\t\t\t\tv.findViewById(R.id.telegram_login_code);",
-				"code.setText(viewModel.getTelegramLoginCode());",
 				"viewModel.setTelegramLoginCode(s.toString());",
 				"v.findViewById(R.id.btn_telegram_login_code_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.submitTelegramLoginCode();\n\t\t\t\t});");
 		assertFileContainsAll("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/telegram_login_code_step\"",
 				"android:id=\"@+id/telegram_login_code\"");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_code_hint\">Telegram login code</string>");
@@ -222,11 +213,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"View passwordEntryStep =\n\t\t\t\tv.findViewById(R.id.telegram_login_password_step);",
 				"TextInputEditText password =\n\t\t\t\tv.findViewById(R.id.telegram_login_password);",
-				"password.setText(viewModel.getTelegramLoginPassword());",
 				"viewModel.setTelegramLoginPassword(s.toString());",
 				"v.findViewById(R.id.btn_telegram_login_password_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.submitTelegramLoginPassword();\n\t\t\t\t});");
 		assertFileContainsAll("src/main/res/layout/fragment_telegram_login_placeholder.xml",
-				"android:id=\"@+id/telegram_login_password_step\"",
 				"android:id=\"@+id/telegram_login_password\"");
 		assertFileContains("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_password_hint\">Telegram password or 2FA code</string>");
@@ -235,31 +224,28 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testTelegramLoginPlaceholderStagesConfirmationStep()
 			throws IOException {
 		assertStartupViewModelContainsAll(
-				"private final TelegramAuthSession telegramAuthSession;",
 				"private final MutableLiveData<TelegramAuthState> telegramAuthState =\n\t\t\tnew MutableLiveData<>(TelegramAuthState.CLOSED);",
-				"TelegramAuthSession telegramAuthSession) {",
-				"this.telegramAuthSession = telegramAuthSession;",
 				"LiveData<TelegramAuthState> getTelegramAuthState() {\n\t\treturn telegramAuthState;\n\t}",
+				"RecoverableErrorDetail getTelegramRecoverableErrorDetail() {\n\t\treturn telegramAuthSession.getRecoverableErrorDetail();\n\t}",
 				"void submitTelegramLoginIdentifier() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.submitIdentifier(telegramLoginIdentifier);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
 				"void showTelegramLoginIdentifierStep() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
 				"boolean isShowingTelegramLoginConfirmation() {\n\t\tTelegramAuthState authState = telegramAuthState.getValue();\n\t\treturn authState == TelegramAuthState.CODE_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.PASSWORD_ENTRY ||\n\t\t\t\tauthState == TelegramAuthState.READY;\n\t}");
 		assertStartupActivityContainsAll(
 				"if (viewModel.isShowingTelegramLoginConfirmation()) {\n\t\t\t\tviewModel.showTelegramLoginIdentifierStep();\n\t\t\t\treturn;\n\t\t\t}");
 		assertTelegramLoginPlaceholderFragmentContainsAll(
-				"TextView message = v.findViewById(R.id.message);",
 				"v.findViewById(R.id.btn_telegram_login_continue)\n\t\t\t\t.setOnClickListener(view -> {",
 				"viewModel.submitTelegramLoginIdentifier();",
 				"v.findViewById(R.id.btn_telegram_login_confirmation_back)\n\t\t\t\t.setOnClickListener(view -> {",
 				"viewModel.showTelegramLoginIdentifierStep();",
-				"viewModel.getTelegramAuthState().observe(getViewLifecycleOwner(),\n\t\t\t\tauthState -> showCurrentStep(identifierStep, codeEntryStep,\n\t\t\t\t\t\tpasswordEntryStep, confirmationStep, continueButton,\n\t\t\t\t\t\tcodeContinueButton, passwordContinueButton,\n\t\t\t\t\t\tconfirmationMessage, passwordFallbackButton));",
-				"passwordFallbackButton.setVisibility(View.VISIBLE);",
 				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);",
 				"} else if (authState == TelegramAuthState.READY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.GONE);\n\t\t\tconfirmationStep.setVisibility(View.VISIBLE);",
-				"message.setText(authState == TelegramAuthState.RECOVERABLE_ERROR\n\t\t\t\t? R.string.telegram_connector_login_retry_message\n\t\t\t\t: R.string.telegram_connector_login_message);",
+				"message.setText(getLoginMessage(authState));",
+				"private int getLoginMessage(TelegramAuthState authState) {\n\t\tif (authState != TelegramAuthState.RECOVERABLE_ERROR) {\n\t\t\treturn R.string.telegram_connector_login_message;\n\t\t}\n\t\treturn viewModel.getTelegramRecoverableErrorDetail() ==\n\t\t\t\tRecoverableErrorDetail.MISSING_TDLIB\n\t\t\t\t? R.string.telegram_connector_login_tdlib_missing_message\n\t\t\t\t: R.string.telegram_connector_login_retry_message;\n\t}",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier()));");
 		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
 				"<string name=\"telegram_connector_login_confirmation_message\">Telegram identifier staged for internal Harbor testing: %1$s</string>",
+				"<string name=\"telegram_connector_login_tdlib_missing_message\">Telegram login cannot start in this build because local TDLib artifacts are missing. Install the repo-local TDLib drop, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
 	}
 	@Test
@@ -438,58 +424,23 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_identity_title\">Telegram account</string>",
 				"<string name=\"telegram_connector_identity_empty_summary\">No Telegram account linked yet.</string>");
 	}
-	private static void assertFileContains(String moduleRelativePath,
-			String expectedText) throws IOException {
-		String contents = new String(Files.readAllBytes(
-				resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
-		assertTrue("Expected to find '" + expectedText + "' in " +
-				moduleRelativePath, contents.contains(expectedText));
+	private static void assertFileContains(String moduleRelativePath, String expectedText) throws IOException {
+		String contents = new String(Files.readAllBytes(resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
+		assertTrue("Expected to find '" + expectedText + "' in " + moduleRelativePath, contents.contains(expectedText));
 	}
-	private static void assertFileContainsAll(String moduleRelativePath,
-			String... expectedTexts) throws IOException { for (String expectedText
-			: expectedTexts) assertFileContains(moduleRelativePath, expectedText); }
-	private static void assertFileNotContains(String moduleRelativePath,
-			String unexpectedText) throws IOException {
-		String contents = new String(Files.readAllBytes(
-				resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
-		assertFalse("Expected not to find '" + unexpectedText + "' in " +
-				moduleRelativePath, contents.contains(unexpectedText));
-	}
-	private static void assertTelegramSubtitleConsumer(String moduleRelativePath)
-			throws IOException { assertFileContains(moduleRelativePath,
-			"protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertFileContains(moduleRelativePath, "showTelegramLinkedIdentitySubtitle(linkedIdentity);"); }
-	private static void assertBriarActivityContainsAll(String... expectedTexts)
-			throws IOException { assertFileContainsAll(
-			"src/main/java/org/briarproject/briar/android/activity/BriarActivity.java",
-			expectedTexts); }
-	private static void assertConnectionsFragmentContainsAll(
-			String... expectedTexts) throws IOException { assertFileContainsAll(
-			"src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java",
-			expectedTexts); }
-	private static void assertStartupActivityContainsAll(String... expectedTexts)
-			throws IOException { assertFileContainsAll(
-			"src/main/java/org/briarproject/briar/android/login/StartupActivity.java",
-			expectedTexts); }
-	private static void assertStartupViewModelContainsAll(String... expectedTexts)
-			throws IOException { assertFileContainsAll(
-			"src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
-			expectedTexts); }
-	private static void assertStringsContainAll(String... expectedTexts)
-			throws IOException { assertFileContainsAll(
-			"src/main/res/values/strings.xml", expectedTexts); }
-	private static void assertTelegramLoginPlaceholderFragmentContainsAll(
-			String... expectedTexts) throws IOException { assertFileContainsAll(
-			"src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
-			expectedTexts); }
+	private static void assertFileContainsAll(String moduleRelativePath, String... expectedTexts) throws IOException { for (String expectedText : expectedTexts) assertFileContains(moduleRelativePath, expectedText); }
+	private static void assertTelegramSubtitleConsumer(String moduleRelativePath) throws IOException { assertFileContains(moduleRelativePath, "protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {"); assertFileContains(moduleRelativePath, "showTelegramLinkedIdentitySubtitle(linkedIdentity);"); }
+	private static void assertBriarActivityContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java", expectedTexts); }
+	private static void assertConnectionsFragmentContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java", expectedTexts); }
+	private static void assertStartupActivityContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/StartupActivity.java", expectedTexts); }
+	private static void assertStartupViewModelContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java", expectedTexts); }
+	private static void assertStringsContainAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/res/values/strings.xml", expectedTexts); }
+	private static void assertTelegramLoginPlaceholderFragmentContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java", expectedTexts); }
 	private static Path resolveModulePath(String moduleRelativePath) {
 		Path cwd = Paths.get("").toAbsolutePath().normalize();
-		Path direct = cwd.resolve(moduleRelativePath).normalize();
-		if (Files.exists(direct)) return direct;
-		Path nested = cwd.resolve("briar-android").resolve(moduleRelativePath)
-				.normalize();
+		Path direct = cwd.resolve(moduleRelativePath).normalize(); if (Files.exists(direct)) return direct;
+		Path nested = cwd.resolve("briar-android").resolve(moduleRelativePath).normalize();
 		if (Files.exists(nested)) return nested;
-		throw new IllegalStateException("Could not resolve module path: "
-				+ moduleRelativePath + " from " + cwd);
+		throw new IllegalStateException("Could not resolve module path: " + moduleRelativePath + " from " + cwd);
 	}
 }

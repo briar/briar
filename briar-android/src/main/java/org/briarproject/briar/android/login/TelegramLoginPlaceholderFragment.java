@@ -13,6 +13,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.api.telegram.TelegramAuthSession.RecoverableErrorDetail;
 import org.briarproject.briar.api.telegram.TelegramAuthState;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
@@ -184,9 +185,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		continueButton.setEnabled(hasIdentifier);
 		codeContinueButton.setEnabled(hasCode);
 		passwordContinueButton.setEnabled(hasPassword);
-		message.setText(authState == TelegramAuthState.RECOVERABLE_ERROR
-				? R.string.telegram_connector_login_retry_message
-				: R.string.telegram_connector_login_message);
+		message.setText(getLoginMessage(authState));
 		passwordFallbackButton.setVisibility(View.VISIBLE);
 		if (authState == TelegramAuthState.CODE_ENTRY) {
 			identifierStep.setVisibility(View.GONE);
@@ -212,6 +211,16 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 			passwordEntryStep.setVisibility(View.GONE);
 			confirmationStep.setVisibility(View.GONE);
 		}
+	}
+
+	private int getLoginMessage(TelegramAuthState authState) {
+		if (authState != TelegramAuthState.RECOVERABLE_ERROR) {
+			return R.string.telegram_connector_login_message;
+		}
+		return viewModel.getTelegramRecoverableErrorDetail() ==
+				RecoverableErrorDetail.MISSING_TDLIB
+				? R.string.telegram_connector_login_tdlib_missing_message
+				: R.string.telegram_connector_login_retry_message;
 	}
 
 	@Override

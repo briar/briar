@@ -1,5 +1,6 @@
 package org.briarproject.briar.telegram;
 import org.briarproject.briar.api.telegram.TelegramAuthSession;
+import org.briarproject.briar.api.telegram.TelegramAuthSession.RecoverableErrorDetail;
 import org.briarproject.briar.api.telegram.TelegramAuthState;
 import org.briarproject.nullsafety.NotNullByDefault;
 import java.lang.reflect.Method;
@@ -17,6 +18,10 @@ class TelegramAuthSessionImpl implements TelegramAuthSession {
 	@Override
 	public TelegramAuthState getCurrentState() {
 		return currentState;
+	}
+	@Override
+	public RecoverableErrorDetail getRecoverableErrorDetail() {
+		return tdlibLoginClient.getRecoverableErrorDetail();
 	}
 	@Override
 	public void start() {
@@ -44,6 +49,8 @@ class NoOpTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 	@Override
 	public TelegramAuthState start() { return TelegramAuthState.CLOSED; }
 	@Override
+	public RecoverableErrorDetail getRecoverableErrorDetail() { return RecoverableErrorDetail.NONE; }
+	@Override
 	public TelegramAuthState submitIdentifier(String identifier) { return TelegramAuthState.CLOSED; }
 	@Override
 	public TelegramAuthState submitCode(String code) { return TelegramAuthState.CLOSED; }
@@ -59,19 +66,25 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 			new AtomicReference<>("");
 	private CountDownLatch updateReceived = new CountDownLatch(0);
 	private String lastAuthorizationStateClassName = "";
+	private RecoverableErrorDetail recoverableErrorDetail =
+			RecoverableErrorDetail.NONE;
 	private Object tdlibClient;
 	@Override
 	public TelegramAuthState start() {
 		closeTdlibClient();
 		if (StubTelegramTdlibLoginClient.class.getResource("/org/drinkless/tdlib/Client.class") == null) {
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.MISSING_TDLIB);
 		}
 		return mapAuthorizationStateClassName(awaitAuthorizationStateClassName(true));
 	}
 	@Override
+	public RecoverableErrorDetail getRecoverableErrorDetail() {
+		return recoverableErrorDetail;
+	}
+	@Override
 	public TelegramAuthState submitIdentifier(String identifier) {
 		if (!hasText(identifier) || tdlibClient == null) {
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		}
 		try {
 			if ("AuthorizationStateWaitTdlibParameters".equals(
@@ -80,12 +93,12 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 				send(createSetTdlibParametersRequest());
 				if (!"AuthorizationStateWaitPhoneNumber".equals(
 						awaitPreparedAuthorizationStateClassName())) {
-					return TelegramAuthState.RECOVERABLE_ERROR;
+					return recoverableError(RecoverableErrorDetail.NONE);
 				}
 			}
 			if (!"AuthorizationStateWaitPhoneNumber".equals(
 					lastAuthorizationStateClassName)) {
-				return TelegramAuthState.RECOVERABLE_ERROR;
+				return recoverableError(RecoverableErrorDetail.NONE);
 			}
 			prepareAuthorizationUpdate();
 			send(createSetAuthenticationPhoneNumberRequest(identifier));
@@ -93,18 +106,18 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 					awaitPreparedAuthorizationStateClassName());
 		} catch (ReflectiveOperationException | LinkageError e) {
 			closeTdlibClient();
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			closeTdlibClient();
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		}
 	}
 	@Override
 	public TelegramAuthState submitCode(String code) {
 		if (!hasText(code) || tdlibClient == null
 				|| !"AuthorizationStateWaitCode".equals(lastAuthorizationStateClassName)) {
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		}
 		try {
 			prepareAuthorizationUpdate();
@@ -112,18 +125,18 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 			return mapAuthorizationStateClassName(awaitPreparedAuthorizationStateClassName());
 		} catch (ReflectiveOperationException | LinkageError e) {
 			closeTdlibClient();
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			closeTdlibClient();
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		}
 	}
 	@Override
 	public TelegramAuthState submitPassword(String password) {
 		if (!hasText(password) || tdlibClient == null
 				|| !"AuthorizationStateWaitPassword".equals(lastAuthorizationStateClassName)) {
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		}
 		try {
 			prepareAuthorizationUpdate();
@@ -132,17 +145,17 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 					awaitPreparedAuthorizationStateClassName());
 		} catch (ReflectiveOperationException | LinkageError e) {
 			closeTdlibClient();
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			closeTdlibClient();
-			return TelegramAuthState.RECOVERABLE_ERROR;
+			return recoverableError(RecoverableErrorDetail.NONE);
 		}
 	}
 	@Override
 	public TelegramAuthState close() {
 		closeTdlibClient();
-		return TelegramAuthState.CLOSED;
+		return clearRecoverableErrorDetail(TelegramAuthState.CLOSED);
 	}
 	private String awaitAuthorizationStateClassName(boolean createClient) {
 		prepareAuthorizationUpdate();
@@ -267,19 +280,27 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 		switch (className) {
 			case "AuthorizationStateWaitTdlibParameters":
 			case "AuthorizationStateWaitPhoneNumber":
-				return TelegramAuthState.IDENTIFIER_ENTRY;
+				return clearRecoverableErrorDetail(TelegramAuthState.IDENTIFIER_ENTRY);
 			case "AuthorizationStateWaitCode":
-				return TelegramAuthState.CODE_ENTRY;
+				return clearRecoverableErrorDetail(TelegramAuthState.CODE_ENTRY);
 			case "AuthorizationStateWaitPassword":
-				return TelegramAuthState.PASSWORD_ENTRY;
+				return clearRecoverableErrorDetail(TelegramAuthState.PASSWORD_ENTRY);
 			case "AuthorizationStateReady":
-				return TelegramAuthState.READY;
+				return clearRecoverableErrorDetail(TelegramAuthState.READY);
 			case "AuthorizationStateClosed":
-				return TelegramAuthState.CLOSED;
+				return clearRecoverableErrorDetail(TelegramAuthState.CLOSED);
 			default:
 				closeTdlibClient();
-				return TelegramAuthState.RECOVERABLE_ERROR;
+				return recoverableError(RecoverableErrorDetail.NONE);
 		}
+	}
+	private TelegramAuthState clearRecoverableErrorDetail(TelegramAuthState state) {
+		recoverableErrorDetail = RecoverableErrorDetail.NONE;
+		return state;
+	}
+	private TelegramAuthState recoverableError(RecoverableErrorDetail detail) {
+		recoverableErrorDetail = detail;
+		return TelegramAuthState.RECOVERABLE_ERROR;
 	}
 	private void closeTdlibClient() {
 		if (tdlibClient == null) return;

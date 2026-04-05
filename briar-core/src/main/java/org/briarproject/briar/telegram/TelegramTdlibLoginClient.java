@@ -1,5 +1,6 @@
 package org.briarproject.briar.telegram;
 
+import org.briarproject.briar.api.telegram.TelegramAuthSession.RecoverableErrorDetail;
 import org.briarproject.briar.api.telegram.TelegramAuthState;
 import org.briarproject.nullsafety.NotNullByDefault;
 
@@ -7,6 +8,8 @@ import org.briarproject.nullsafety.NotNullByDefault;
 interface TelegramTdlibLoginClient {
 
 	TelegramAuthState start();
+
+	RecoverableErrorDetail getRecoverableErrorDetail();
 
 	TelegramAuthState submitIdentifier(String identifier);
 

@@ -5,7 +5,14 @@ import org.briarproject.nullsafety.NotNullByDefault;
 @NotNullByDefault
 public interface TelegramAuthSession {
 
+	enum RecoverableErrorDetail {
+		NONE,
+		MISSING_TDLIB
+	}
+
 	TelegramAuthState getCurrentState();
+
+	RecoverableErrorDetail getRecoverableErrorDetail();
 
 	void start();
 
