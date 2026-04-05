@@ -221,6 +221,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 				viewModel.getTelegramRecoverableErrorDetail();
 		if (detail == RecoverableErrorDetail.MISSING_TDLIB) return R.string.telegram_connector_login_tdlib_missing_message;
 		if (detail == RecoverableErrorDetail.INVALID_IDENTIFIER) return R.string.telegram_connector_login_identifier_invalid_message;
+		if (detail == RecoverableErrorDetail.INVALID_PASSWORD) return R.string.telegram_connector_login_password_invalid_message;
 		return detail == RecoverableErrorDetail.INVALID_CODE
 				? R.string.telegram_connector_login_code_invalid_message
 				: R.string.telegram_connector_login_retry_message;

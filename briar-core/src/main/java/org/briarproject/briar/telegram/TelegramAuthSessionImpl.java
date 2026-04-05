@@ -142,7 +142,9 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 		}
 		try {
 			prepareAuthorizationUpdate();
-			send(createCheckAuthenticationPasswordRequest(password));
+			if (sendReturnsError(createCheckAuthenticationPasswordRequest(password))) {
+				return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD);
+			}
 			return mapAuthorizationStateClassName(
 					awaitPreparedAuthorizationStateClassName());
 		} catch (ReflectiveOperationException | LinkageError e) {

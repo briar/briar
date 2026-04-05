@@ -1,5 +1,4 @@
 package org.briarproject.briar.api.telegram;
-
 public enum TelegramAuthState {
 	IDENTIFIER_ENTRY,
 	CODE_ENTRY,

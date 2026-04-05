@@ -39,7 +39,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testTelegramAuthSessionSeamIsWiredWithoutTdlibTypes()
 			throws IOException {
 		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java", "public enum TelegramAuthState {\n\tIDENTIFIER_ENTRY,\n\tCODE_ENTRY,\n\tPASSWORD_ENTRY,\n\tREADY,\n\tCLOSED,\n\tRECOVERABLE_ERROR\n}");
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java", "public interface TelegramAuthSession {\n\n\tenum RecoverableErrorDetail {\n\t\tNONE,\n\t\tMISSING_TDLIB,\n\t\tINVALID_IDENTIFIER,\n\t\tINVALID_CODE\n\t}\n\n\tTelegramAuthState getCurrentState();\n\n\tRecoverableErrorDetail getRecoverableErrorDetail();\n\n\tvoid start();\n\n\tvoid submitIdentifier(String identifier);\n\n\tvoid submitCode(String code);\n\n\tvoid submitPassword(String password);\n\n\tvoid close();\n}");
+		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java", "public interface TelegramAuthSession {\n\tenum RecoverableErrorDetail {\n\t\tNONE,\n\t\tMISSING_TDLIB,\n\t\tINVALID_IDENTIFIER,\n\t\tINVALID_CODE,\n\t\tINVALID_PASSWORD\n\t}\n\tTelegramAuthState getCurrentState();\n\tRecoverableErrorDetail getRecoverableErrorDetail();\n\tvoid start();\n\tvoid submitIdentifier(String identifier);\n\tvoid submitCode(String code);\n\tvoid submitPassword(String password);\n\tvoid close();\n}");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java", "TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java", "class TelegramAuthSessionImpl implements TelegramAuthSession {");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
@@ -57,7 +57,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"send(createSetTdlibParametersRequest());",
 				"sendReturnsError(createSetAuthenticationPhoneNumberRequest(identifier))",
 				"sendReturnsError(createCheckAuthenticationCodeRequest(code))", "return recoverableError(RecoverableErrorDetail.INVALID_CODE);",
-				"send(createCheckAuthenticationPasswordRequest(password));");
+				"sendReturnsError(createCheckAuthenticationPasswordRequest(password))",
+				"return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD);");
 	}
 	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts()
@@ -214,13 +215,14 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"} else if (authState == TelegramAuthState.PASSWORD_ENTRY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.VISIBLE);\n\t\t\tconfirmationStep.setVisibility(View.GONE);",
 				"} else if (authState == TelegramAuthState.READY) {\n\t\t\tidentifierStep.setVisibility(View.GONE);\n\t\t\tcodeEntryStep.setVisibility(View.GONE);\n\t\t\tpasswordEntryStep.setVisibility(View.GONE);\n\t\t\tconfirmationStep.setVisibility(View.VISIBLE);",
 				"message.setText(getLoginMessage(authState));",
-				"private int getLoginMessage(TelegramAuthState authState) {\n\t\tif (authState != TelegramAuthState.RECOVERABLE_ERROR) {\n\t\t\treturn R.string.telegram_connector_login_message;\n\t\t}\n\t\tRecoverableErrorDetail detail =\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail();\n\t\tif (detail == RecoverableErrorDetail.MISSING_TDLIB) return R.string.telegram_connector_login_tdlib_missing_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_IDENTIFIER) return R.string.telegram_connector_login_identifier_invalid_message;\n\t\treturn detail == RecoverableErrorDetail.INVALID_CODE\n\t\t\t\t? R.string.telegram_connector_login_code_invalid_message\n\t\t\t\t: R.string.telegram_connector_login_retry_message;\n\t}",
+				"private int getLoginMessage(TelegramAuthState authState) {\n\t\tif (authState != TelegramAuthState.RECOVERABLE_ERROR) {\n\t\t\treturn R.string.telegram_connector_login_message;\n\t\t}\n\t\tRecoverableErrorDetail detail =\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail();\n\t\tif (detail == RecoverableErrorDetail.MISSING_TDLIB) return R.string.telegram_connector_login_tdlib_missing_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_IDENTIFIER) return R.string.telegram_connector_login_identifier_invalid_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_PASSWORD) return R.string.telegram_connector_login_password_invalid_message;\n\t\treturn detail == RecoverableErrorDetail.INVALID_CODE\n\t\t\t\t? R.string.telegram_connector_login_code_invalid_message\n\t\t\t\t: R.string.telegram_connector_login_retry_message;\n\t}",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier()));");
 		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
 				"<string name=\"telegram_connector_login_confirmation_message\">Telegram identifier staged for internal Harbor testing: %1$s</string>",
 				"<string name=\"telegram_connector_login_tdlib_missing_message\">Telegram login cannot start in this build because local TDLib artifacts are missing. Install the repo-local TDLib drop, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_identifier_invalid_message\">Telegram did not accept that identifier in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>", "<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
+				"<string name=\"telegram_connector_login_password_invalid_message\">Telegram did not accept that password or 2FA entry in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
 	}
 	@Test
