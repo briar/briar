@@ -122,7 +122,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContainsAll("src/main/res/values/strings.xml",
 				"<string name=\"telegram_connector_login_button\">Continue with Telegram</string>",
 				"<string name=\"telegram_connector_login_title\">Telegram login</string>",
-				"<string name=\"telegram_connector_login_message\">Telegram login is staged for internal Harbor testing. Briar password sign-in remains the active path in this build.</string>");
+				"<string name=\"telegram_connector_login_message\">Telegram login is staged for internal Harbor testing. TDLib currently expects a Telegram phone number, and Harbor password sign-in remains the active path in this build.</string>");
 	}
 	@Test
 	public void testStartupActivityOwnsTelegramLoginPlaceholderRouting()
@@ -152,7 +152,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);",
 				"identifier.setText(viewModel.getTelegramLoginIdentifier());",
 				"viewModel.setTelegramLoginIdentifier(s.toString());");
-		assertStringsContainAll("<string name=\"telegram_connector_login_identifier_hint\">Telegram identifier</string>");
+		assertStringsContainAll("<string name=\"telegram_connector_login_identifier_hint\">Telegram phone number</string>");
 	}
 	@Test
 	public void testTelegramLoginPlaceholderStagesCodeEntryStep()
@@ -213,11 +213,12 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier()));");
 		assertStringsContainAll(
 				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
-				"<string name=\"telegram_connector_login_confirmation_message\">Telegram identifier staged for internal Harbor testing: %1$s</string>",
+				"<string name=\"telegram_connector_login_confirmation_message\">Telegram phone number staged for internal Harbor testing: %1$s</string>",
 				"<string name=\"telegram_connector_login_tdlib_missing_message\">Telegram login cannot start in this build because local TDLib artifacts are missing. Install the repo-local TDLib drop, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_identifier_invalid_message\">Telegram did not accept that identifier in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>", "<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
+				"<string name=\"telegram_connector_login_identifier_invalid_message\">Telegram did not accept that phone number in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>", "<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_password_invalid_message\">Telegram did not accept that password or 2FA entry in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your identifier or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>");
+				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your phone number or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>",
+				"<string name=\"telegram_connector_login_confirmation_back_button\">Back to phone number</string>");
 	}
 	@Test
 	public void testTelegramLoginCodeRetryKeepsCodeEntryVisible() throws IOException {
