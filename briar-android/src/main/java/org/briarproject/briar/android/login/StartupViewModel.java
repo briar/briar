@@ -209,7 +209,7 @@ public class StartupViewModel extends AndroidViewModel
 
 	void submitTelegramLoginIdentifier() {
 		telegramLoginCode = telegramLoginPassword = "";
-		telegramAuthSession.submitIdentifier(telegramLoginIdentifier);
+		telegramAuthSession.submitIdentifier(telegramLoginIdentifier.trim());
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 	}
 

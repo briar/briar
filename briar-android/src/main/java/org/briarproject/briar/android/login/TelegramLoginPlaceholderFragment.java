@@ -207,7 +207,7 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 			confirmationStep.setVisibility(View.VISIBLE);
 			confirmationMessage.setText(getString(
 					R.string.telegram_connector_login_confirmation_message,
-					viewModel.getTelegramLoginIdentifier()));
+					viewModel.getTelegramLoginIdentifier().trim()));
 		} else {
 			identifierStep.setVisibility(View.VISIBLE);
 			codeEntryStep.setVisibility(View.GONE);
