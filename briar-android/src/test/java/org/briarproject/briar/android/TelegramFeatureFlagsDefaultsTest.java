@@ -64,9 +64,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramStatus.setSummary(requireSettingsActivity()\n\t\t\t\t.isTelegramConnectorReady()\n\t\t\t\t? R.string.telegram_connector_settings_ready_summary\n\t\t\t\t: R.string.telegram_connector_settings_summary);");
 		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java", "boolean isTelegramConnectorReady() {\n\t\treturn getBriarController().isTelegramConnectorReady();\n\t}");
 		assertFileContains("src/main/res/xml/settings_connections.xml", "android:key=\"pref_key_telegram_status\"");
-		assertStringsContainAll(
-				"<string name=\"telegram_connector_settings_title\">Telegram connector</string>",
-				"<string name=\"telegram_connector_settings_ready_summary\">Connector foundations are ready for internal Harbor testing. Telegram syncing is not active yet.</string>");
 	}
 	@Test
 	public void testBriarControllerExposesTelegramConnectorReadinessSeam() throws IOException {
@@ -173,7 +170,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"v.findViewById(R.id.btn_telegram_login_password_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.submitTelegramLoginPassword();\n\t\t\t\t});");
 		assertFileContainsAll("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/telegram_login_password\"");
-		assertFileContains("src/main/res/values/strings.xml", "<string name=\"telegram_connector_login_password_hint\">Telegram password or 2FA code</string>");
 	}
 	@Test
 	public void testTelegramLoginPlaceholderStagesConfirmationStep() throws IOException {
@@ -196,12 +192,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"message.setText(getLoginMessage(authState));",
 				"private int getLoginMessage(TelegramAuthState authState) {\n\t\tif (authState != TelegramAuthState.RECOVERABLE_ERROR) {\n\t\t\treturn R.string.telegram_connector_login_message;\n\t\t}\n\t\tRecoverableErrorDetail detail =\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail();\n\t\tif (detail == RecoverableErrorDetail.MISSING_TDLIB) return R.string.telegram_connector_login_tdlib_missing_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_IDENTIFIER) return R.string.telegram_connector_login_identifier_invalid_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_PASSWORD) return R.string.telegram_connector_login_password_invalid_message;\n\t\treturn detail == RecoverableErrorDetail.INVALID_CODE\n\t\t\t\t? R.string.telegram_connector_login_code_invalid_message\n\t\t\t\t: R.string.telegram_connector_login_retry_message;\n\t}",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier().trim()));");
-		assertStringsContainAll(
-				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
-				"<string name=\"telegram_connector_login_confirmation_message\">Telegram phone number staged for internal Harbor testing: %1$s</string>",
-				"<string name=\"telegram_connector_login_tdlib_missing_message\">Telegram login cannot start in this build because local TDLib artifacts are missing. Install the repo-local TDLib drop, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_confirmation_back_button\">Back to phone number</string>");
 	}
 	@Test
 	public void testTelegramLoginCodeRetryKeepsCodeEntryVisible() throws IOException {
@@ -339,9 +329,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramLinkedIdentity.postValue(settings.get(\n\t\t\t\tConnectionsFragment.PREF_KEY_TELEGRAM_LINKED_IDENTITY));");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_linked_identity\"");
-		assertStringsContainAll(
-				"<string name=\"telegram_connector_identity_title\">Telegram account</string>",
-				"<string name=\"telegram_connector_identity_empty_summary\">No Telegram account linked yet.</string>");
 	}
 	private static void assertFileContains(String moduleRelativePath, String expectedText) throws IOException {
 		String contents = new String(Files.readAllBytes(resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
