@@ -145,7 +145,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private String telegramLoginCode = \"\";",
 				"String getTelegramLoginCode() {\n\t\treturn telegramLoginCode;\n\t}",
 				"void setTelegramLoginCode(String code) {\n\t\ttelegramLoginCode = code;\n\t}",
-				"void submitTelegramLoginCode() {\n\t\ttelegramAuthSession.submitCode(telegramLoginCode);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
+				"void submitTelegramLoginCode() {\n\t\ttelegramAuthSession.submitCode(telegramLoginCode.trim());\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
 				"telegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();");
 		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"View codeEntryStep = v.findViewById(R.id.telegram_login_code_step);",
