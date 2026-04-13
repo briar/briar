@@ -145,7 +145,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private String telegramLoginCode = \"\";",
 				"String getTelegramLoginCode() {\n\t\treturn telegramLoginCode;\n\t}",
 				"void setTelegramLoginCode(String code) {\n\t\ttelegramLoginCode = code;\n\t}",
-				"void submitTelegramLoginCode() {\n\t\ttelegramAuthSession.submitCode(telegramLoginCode.trim());\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}",
+				"telegramAuthSession.submitCode(telegramLoginCode.trim());",
+				"telegramAuthState.setValue(telegramAuthSession.getCurrentState());",
 				"telegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();");
 		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"View codeEntryStep = v.findViewById(R.id.telegram_login_code_step);",
@@ -196,6 +197,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramLoginCodeRetryKeepsCodeEntryVisible() throws IOException {
 		assertTelegramLoginPlaceholderFragmentContainsAll("if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {");
+	}
+	@Test
+	public void testStartupViewModelClearsTelegramCodeAfterAdvancingPastCodeStep() throws IOException {
+		assertStartupViewModelContainsAll(
+				"void submitTelegramLoginCode() {\n\t\ttelegramAuthSession.submitCode(telegramLoginCode.trim());\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_CODE) {\n\t\t\ttelegramLoginCode = \"\";\n\t\t}\n\t}");
 	}
 	@Test
 	public void testTelegramLoginMissingTdlibDisablesIdentifierContinue() throws IOException {
