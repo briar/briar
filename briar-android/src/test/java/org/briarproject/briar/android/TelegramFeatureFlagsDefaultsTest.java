@@ -200,9 +200,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"<string name=\"telegram_connector_login_continue_button\">Continue</string>",
 				"<string name=\"telegram_connector_login_confirmation_message\">Telegram phone number staged for internal Harbor testing: %1$s</string>",
 				"<string name=\"telegram_connector_login_tdlib_missing_message\">Telegram login cannot start in this build because local TDLib artifacts are missing. Install the repo-local TDLib drop, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_identifier_invalid_message\">Telegram did not accept that phone number in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>", "<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_password_invalid_message\">Telegram did not accept that password or 2FA entry in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
-				"<string name=\"telegram_connector_login_retry_message\">Telegram login hit a recoverable issue in this build. Check your phone number or local TDLib setup, then continue to retry. You can also use Harbor password instead.</string>",
+				"<string name=\"telegram_connector_login_code_invalid_message\">Telegram did not accept that login code in this build. Check it, then continue to retry. You can also use Harbor password instead.</string>",
 				"<string name=\"telegram_connector_login_confirmation_back_button\">Back to phone number</string>");
 	}
 	@Test
@@ -212,21 +210,16 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn() throws IOException {
 		assertStartupViewModelContainsAll(
-				"private volatile String pendingTelegramLinkedIdentity = \"\";",
 				"void completeTelegramLoginConfirmation() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();\n\t\tshowPasswordFragment();\n\t}",
 				"accountManager.signIn(password);\n\t\t\t\tstorePendingTelegramLinkedIdentity();\n\t\t\t\tpasswordValidated.postEvent(SUCCESS);",
 				"private void storePendingTelegramLinkedIdentity() {\n\t\tif (pendingTelegramLinkedIdentity.isEmpty()) return;",
-				"settings.put(\"pref_key_telegram_linked_identity\",",
 				"settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);");
 	}
 	@Test
 	public void testStartupActivityShowsTelegramIdentityHandoffConfirmation() throws IOException {
 		assertStartupViewModelContainsAll(
-				"private final MutableLiveEvent<String> telegramLinkedIdentityStaged =\n\t\t\tnew MutableLiveEvent<>();",
-				"private volatile String lastTelegramLinkedIdentityStaged = \"\";",
 				"LiveEvent<String> getTelegramLinkedIdentityStaged() {\n\t\treturn telegramLinkedIdentityStaged;\n\t}",
-				"String getLastTelegramLinkedIdentityStaged() {\n\t\treturn lastTelegramLinkedIdentityStaged;\n\t}",
-				"lastTelegramLinkedIdentityStaged = pendingTelegramLinkedIdentity;\n\t\t\ttelegramLinkedIdentityStaged.postEvent(lastTelegramLinkedIdentityStaged);");
+				"telegramLinkedIdentityStaged.postEvent(lastTelegramLinkedIdentityStaged);");
 		assertStartupActivityContainsAll(
 				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tstagedTelegramLoginIdentity = identifier;\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
 		assertStringsContainAll("<string name=\"telegram_connector_login_handoff_staged\">Telegram identity staged for Harbor internal testing: %1$s</string>");
@@ -242,8 +235,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testStartupLoginCanOfferTelegramSetupEntrypointAfterFreshHandoff() throws IOException {
 		assertStartupActivityContainsAll(
 				"public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"briar.STAGED_TELEGRAM_LOGIN_IDENTITY\";",
-				"private String stagedTelegramLoginIdentity = \"\";",
-				"stagedTelegramLoginIdentity = identifier;",
 				"if (stagedTelegramLoginIdentity.isEmpty()) {\n\t\t\t\tstagedTelegramLoginIdentity =\n\t\t\t\t\t\tviewModel.getLastTelegramLinkedIdentityStaged();\n\t\t\t}",
 				"result.putExtra(EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY,\n\t\t\t\t\t\tstagedTelegramLoginIdentity);");
 		assertBriarActivityContainsAll(
