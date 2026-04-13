@@ -185,6 +185,11 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		continueButton.setEnabled(hasIdentifier);
 		codeContinueButton.setEnabled(hasCode);
 		passwordContinueButton.setEnabled(hasPassword);
+		if (authState == TelegramAuthState.RECOVERABLE_ERROR &&
+				viewModel.getTelegramRecoverableErrorDetail()
+				== RecoverableErrorDetail.MISSING_TDLIB) {
+			continueButton.setEnabled(false);
+		}
 		message.setText(getLoginMessage(authState));
 		passwordFallbackButton.setVisibility(View.VISIBLE);
 		if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {

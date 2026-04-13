@@ -198,6 +198,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertTelegramLoginPlaceholderFragmentContainsAll("if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {");
 	}
 	@Test
+	public void testTelegramLoginMissingTdlibDisablesIdentifierContinue() throws IOException {
+		assertTelegramLoginPlaceholderFragmentContainsAll(
+				"if (authState == TelegramAuthState.RECOVERABLE_ERROR &&\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail()\n\t\t\t\t== RecoverableErrorDetail.MISSING_TDLIB) {\n\t\t\tcontinueButton.setEnabled(false);\n\t\t}");
+	}
+	@Test
 	public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn() throws IOException {
 		assertStartupViewModelContainsAll(
 				"void completeTelegramLoginConfirmation() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();\n\t\tshowPasswordFragment();\n\t}",
