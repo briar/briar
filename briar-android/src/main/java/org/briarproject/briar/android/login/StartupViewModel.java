@@ -230,6 +230,10 @@ public class StartupViewModel extends AndroidViewModel
 	void submitTelegramLoginPassword() {
 		telegramAuthSession.submitPassword(telegramLoginPassword);
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
+		if (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||
+				getTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_PASSWORD) {
+			telegramLoginPassword = "";
+		}
 	}
 
 	void completeTelegramLoginConfirmation() {

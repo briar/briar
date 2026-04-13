@@ -163,7 +163,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private String telegramLoginPassword = \"\";",
 				"String getTelegramLoginPassword() {\n\t\treturn telegramLoginPassword;\n\t}",
 				"void setTelegramLoginPassword(String password) {\n\t\ttelegramLoginPassword = password;\n\t}",
-				"void submitTelegramLoginPassword() {\n\t\ttelegramAuthSession.submitPassword(telegramLoginPassword);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t}");
+				"void submitTelegramLoginPassword() {\n\t\ttelegramAuthSession.submitPassword(telegramLoginPassword);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_PASSWORD) {\n\t\t\ttelegramLoginPassword = \"\";\n\t\t}\n\t}");
 		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
 				"View passwordEntryStep =\n\t\t\t\tv.findViewById(R.id.telegram_login_password_step);",
 				"TextInputEditText password =\n\t\t\t\tv.findViewById(R.id.telegram_login_password);",
@@ -202,6 +202,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testStartupViewModelClearsTelegramCodeAfterAdvancingPastCodeStep() throws IOException {
 		assertStartupViewModelContainsAll(
 				"void submitTelegramLoginCode() {\n\t\ttelegramAuthSession.submitCode(telegramLoginCode.trim());\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_CODE) {\n\t\t\ttelegramLoginCode = \"\";\n\t\t}\n\t}");
+	}
+	@Test
+	public void testStartupViewModelClearsTelegramPasswordAfterAdvancingPastPasswordStep() throws IOException {
+		assertStartupViewModelContainsAll(
+				"void submitTelegramLoginPassword() {\n\t\ttelegramAuthSession.submitPassword(telegramLoginPassword);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_PASSWORD) {\n\t\t\ttelegramLoginPassword = \"\";\n\t\t}\n\t}");
 	}
 	@Test
 	public void testTelegramLoginMissingTdlibDisablesIdentifierContinue() throws IOException {
