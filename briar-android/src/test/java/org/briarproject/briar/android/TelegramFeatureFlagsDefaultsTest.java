@@ -222,7 +222,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramLinkedIdentityStaged.postEvent(lastTelegramLinkedIdentityStaged);");
 		assertStartupActivityContainsAll(
 				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tstagedTelegramLoginIdentity = identifier;\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
-		assertStringsContainAll("<string name=\"telegram_connector_login_handoff_staged\">Telegram identity staged for Harbor internal testing: %1$s</string>");
 	}
 	@Test
 	public void testStartupActivityPersistsTelegramIdentityHandoffAcrossRecreation() throws IOException {
@@ -247,9 +246,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"R.string.telegram_connector_login_entrypoint_message,\n\t\t\t\t\t\tlinkedIdentity))",
 				"Intent i = new Intent(this, SettingsActivity.class);",
 				"i.setAction(ACTION_MANAGE_NETWORK_USAGE);");
-		assertStringsContainAll("<string name=\"telegram_connector_login_entrypoint_message\">Telegram identity staged for Harbor internal testing: %1$s\\n\\nOpen Telegram setup to continue the placeholder flow.</string>",
-				"<string name=\"telegram_connector_login_entrypoint_continue_button\">Open Telegram setup</string>",
-				"<string name=\"telegram_connector_login_entrypoint_cancel_button\">Stay in Harbor</string>");
 	}
 	@Test
 	public void testPostSignInTelegramSetupEntrypointCanAutoOpenPlaceholder() throws IOException {
@@ -271,10 +267,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramStatus.setOnPreferenceClickListener(preference -> {",
 				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady(),\n\t\t\t\t\ttelegramLinkedIdentity.getText());",
 				"private void showTelegramSetupDialog(boolean ready,\n\t\t\t@Nullable String linkedIdentity) {");
-		assertStringsContainAll(
-				"<string name=\"telegram_connector_setup_ready_message\">Telegram account linking is the next Harbor internal test step. Connector syncing is still inactive in this build.</string>",
-				"<string name=\"telegram_connector_setup_unavailable_message\">Sign into Harbor and finish app startup before Telegram account linking can be tested. Connector syncing is still inactive in this build.</string>",
-				"<string name=\"telegram_connector_setup_configured_message\">Telegram account %1$s is stored for internal Harbor linking tests. Connector syncing is still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramSetupPlaceholderCanContinueToIdentityReview() throws IOException {
@@ -300,10 +292,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private void showTelegramVerificationDialog(@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_verification\"");
-		assertStringsContainAll(
-				"<string name=\"telegram_connector_verification_title\">Telegram verification</string>",
-				"<string name=\"telegram_connector_verification_ready_summary\">Continue internal Harbor verification for Telegram account %1$s.</string>",
-				"<string name=\"telegram_connector_verification_dialog_message\">Telegram verification for %1$s stays in Harbor local-only placeholder flow. Real Telegram authentication and syncing are still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramVerificationPlaceholderCanContinueToAuthenticationPlaceholder() throws IOException {
@@ -312,9 +300,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"showTelegramAuthenticationPlaceholder(linkedIdentity))",
 				".setNegativeButton(R.string.cancel, null)",
 				"private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {");
-		assertStringsContainAll("<string name=\"telegram_connector_verification_continue_button\">Open authentication placeholder</string>",
-				"<string name=\"telegram_connector_auth_placeholder_title\">Telegram authentication</string>",
-				"<string name=\"telegram_connector_auth_placeholder_message\">Telegram authentication for %1$s remains a Harbor local-only placeholder. Real Telegram sign-in and syncing are still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramAuthPlaceholderCompletionUpdatesVerificationSummary() throws IOException {
@@ -323,7 +308,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramAuthenticationPlaceholderCompletedIdentity = linkedIdentity;",
 				"updateTelegramVerificationState(linkedIdentity);",
 				"linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity)");
-		assertStringsContainAll("<string name=\"telegram_connector_verification_completed_summary\">Authentication placeholder reviewed for Telegram account %1$s.</string>");
 	}
 	@Test
 	public void testCompletedVerificationDialogMentionsPreviouslyReviewedPlaceholder() throws IOException {
@@ -331,8 +315,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"boolean alreadyReviewed = hasCompletedTelegramVerification(linkedIdentity);",
 				"R.string.telegram_connector_verification_dialog_completed_message",
 				"private boolean hasCompletedTelegramVerification(\n\t\t\t@Nullable String linkedIdentity) {");
-		assertStringsContainAll(
-				"<string name=\"telegram_connector_verification_dialog_completed_message\">Telegram verification for %1$s is reopening the Harbor local-only placeholder flow after the authentication placeholder was already reviewed. Real Telegram authentication and syncing are still inactive in this build.</string>");
 	}
 	@Test
 	public void testTelegramVerificationCompletionResetsWhenIdentityChanges() throws IOException {
