@@ -223,8 +223,10 @@ public class TelegramFeatureFlagsDefaultsTest {
 	public void testStartupActivityShowsTelegramIdentityHandoffConfirmation() throws IOException {
 		assertStartupViewModelContainsAll(
 				"private final MutableLiveEvent<String> telegramLinkedIdentityStaged =\n\t\t\tnew MutableLiveEvent<>();",
+				"private volatile String lastTelegramLinkedIdentityStaged = \"\";",
 				"LiveEvent<String> getTelegramLinkedIdentityStaged() {\n\t\treturn telegramLinkedIdentityStaged;\n\t}",
-				"telegramLinkedIdentityStaged.postEvent(pendingTelegramLinkedIdentity);");
+				"String getLastTelegramLinkedIdentityStaged() {\n\t\treturn lastTelegramLinkedIdentityStaged;\n\t}",
+				"lastTelegramLinkedIdentityStaged = pendingTelegramLinkedIdentity;\n\t\t\ttelegramLinkedIdentityStaged.postEvent(lastTelegramLinkedIdentityStaged);");
 		assertStartupActivityContainsAll(
 				"viewModel.getTelegramLinkedIdentityStaged().observeEvent(this,\n\t\t\t\tidentifier -> {\n\t\t\t\t\tstagedTelegramLoginIdentity = identifier;\n\t\t\t\t\tToast.makeText(this,\n\t\t\t\t\t\t\tgetString(\n\t\t\t\t\t\t\t\t\tR.string.telegram_connector_login_handoff_staged,\n\t\t\t\t\t\t\t\t\tidentifier),\n\t\t\t\t\t\t\tLENGTH_LONG).show();\n\t\t\t\t});");
 		assertStringsContainAll("<string name=\"telegram_connector_login_handoff_staged\">Telegram identity staged for Harbor internal testing: %1$s</string>");
@@ -242,6 +244,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"public static final String EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY =\n\t\t\t\"briar.STAGED_TELEGRAM_LOGIN_IDENTITY\";",
 				"private String stagedTelegramLoginIdentity = \"\";",
 				"stagedTelegramLoginIdentity = identifier;",
+				"if (stagedTelegramLoginIdentity.isEmpty()) {\n\t\t\t\tstagedTelegramLoginIdentity =\n\t\t\t\t\t\tviewModel.getLastTelegramLinkedIdentityStaged();\n\t\t\t}",
 				"result.putExtra(EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY,\n\t\t\t\t\t\tstagedTelegramLoginIdentity);");
 		assertBriarActivityContainsAll(
 				"private static final String EXTRA_PENDING_TELEGRAM_LOGIN_ENTRYPOINT =\n\t\t\t\"briar.PENDING_TELEGRAM_LOGIN_ENTRYPOINT\";",

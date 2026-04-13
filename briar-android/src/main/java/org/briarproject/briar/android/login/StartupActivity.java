@@ -133,6 +133,10 @@ public class StartupActivity extends BaseActivity implements
 			showNextFragment(new OpenDatabaseFragment());
 		} else if (state == STARTED) {
 			Intent result = new Intent();
+			if (stagedTelegramLoginIdentity.isEmpty()) {
+				stagedTelegramLoginIdentity =
+						viewModel.getLastTelegramLinkedIdentityStaged();
+			}
 			if (!stagedTelegramLoginIdentity.isEmpty()) {
 				result.putExtra(EXTRA_STAGED_TELEGRAM_LOGIN_IDENTITY,
 						stagedTelegramLoginIdentity);

@@ -81,6 +81,7 @@ public class StartupViewModel extends AndroidViewModel
 	private String telegramLoginCode = "";
 	private String telegramLoginPassword = "";
 	private volatile String pendingTelegramLinkedIdentity = "";
+	private volatile String lastTelegramLinkedIdentityStaged = "";
 
 	@Inject
 	StartupViewModel(Application app,
@@ -162,6 +163,10 @@ public class StartupViewModel extends AndroidViewModel
 
 	LiveEvent<String> getTelegramLinkedIdentityStaged() {
 		return telegramLinkedIdentityStaged;
+	}
+
+	String getLastTelegramLinkedIdentityStaged() {
+		return lastTelegramLinkedIdentityStaged;
 	}
 
 	LiveData<State> getState() {
@@ -259,7 +264,8 @@ public class StartupViewModel extends AndroidViewModel
 			settings.put("pref_key_telegram_linked_identity",
 					pendingTelegramLinkedIdentity);
 			settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-			telegramLinkedIdentityStaged.postEvent(pendingTelegramLinkedIdentity);
+			lastTelegramLinkedIdentityStaged = pendingTelegramLinkedIdentity;
+			telegramLinkedIdentityStaged.postEvent(lastTelegramLinkedIdentityStaged);
 			pendingTelegramLinkedIdentity = "";
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
