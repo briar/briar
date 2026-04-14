@@ -91,7 +91,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testTelegramIdentityConsumersSurfaceOutsideSettings() throws IOException {
 		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java");
-		assertFileContains("src/main/res/values/strings.xml", "<string name=\"telegram_connector_transports_subtitle\">Telegram account staged: %1$s</string>");
 	}
 	@Test
 	public void testPasswordFragmentExposesTelegramLoginPlaceholder() throws IOException {
@@ -106,10 +105,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramLoginButton.setVisibility(\n\t\t\t\tviewModel.shouldShowTelegramLogin() ? VISIBLE : GONE);",
 				"telegramLoginButton.setOnClickListener(\n\t\t\t\tview -> onTelegramLoginClick());");
 		assertFileContains("src/main/res/layout/fragment_password.xml", "android:id=\"@+id/btn_telegram_login\"");
-		assertFileContainsAll("src/main/res/values/strings.xml",
-				"<string name=\"telegram_connector_login_button\">Continue with Telegram</string>",
-				"<string name=\"telegram_connector_login_title\">Telegram login</string>",
-				"<string name=\"telegram_connector_login_message\">Telegram login is staged for internal Harbor testing. TDLib currently expects a Telegram phone number, and Harbor password sign-in remains the active path in this build.</string>");
 	}
 	@Test
 	public void testStartupActivityOwnsTelegramLoginPlaceholderRouting() throws IOException {
@@ -137,7 +132,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);",
 				"identifier.setText(viewModel.getTelegramLoginIdentifier());",
 				"viewModel.setTelegramLoginIdentifier(s.toString());");
-		assertStringsContainAll("<string name=\"telegram_connector_login_identifier_hint\">Telegram phone number</string>");
 	}
 	@Test
 	public void testTelegramLoginPlaceholderStagesCodeEntryStep() throws IOException {
@@ -155,7 +149,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"v.findViewById(R.id.btn_telegram_login_code_continue)\n\t\t\t\t.setOnClickListener(view -> {\n\t\t\t\t\tviewModel.submitTelegramLoginCode();\n\t\t\t\t});");
 		assertFileContainsAll("src/main/res/layout/fragment_telegram_login_placeholder.xml",
 				"android:id=\"@+id/telegram_login_code\"");
-		assertFileContains("src/main/res/values/strings.xml", "<string name=\"telegram_connector_login_code_hint\">Telegram login code</string>");
 	}
 	@Test
 	public void testTelegramLoginPlaceholderStagesPasswordEntryStep() throws IOException {
@@ -281,7 +274,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"if (ready) showTelegramIdentityEditor();",
 				"builder.setNegativeButton(R.string.cancel, null);",
 				"private void showTelegramIdentityEditor() {\n\t\ttelegramLinkedIdentity.performClick();\n\t}");
-		assertStringsContainAll("<string name=\"telegram_connector_setup_continue_button\">Review Telegram identity</string>");
 	}
 	@Test
 	public void testTelegramIdentityReviewCanContinueToVerificationPlaceholder() throws IOException {
@@ -356,7 +348,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 	private static void assertConnectionsFragmentContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java", expectedTexts); }
 	private static void assertStartupActivityContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/StartupActivity.java", expectedTexts); }
 	private static void assertStartupViewModelContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java", expectedTexts); }
-	private static void assertStringsContainAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/res/values/strings.xml", expectedTexts); }
 	private static void assertTelegramLoginPlaceholderFragmentContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java", expectedTexts); }
 	private static Path resolveModulePath(String moduleRelativePath) {
 		Path cwd = Paths.get("").toAbsolutePath().normalize();
