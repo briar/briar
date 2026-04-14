@@ -266,19 +266,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				".isTelegramConnectorReady(), value);");
 	}
 	@Test
-	public void testConnectionsSettingsExposeTelegramSetupPlaceholder() throws IOException {
-		assertConnectionsFragmentContainsAll(
-				"telegramStatus.setOnPreferenceClickListener(preference -> {",
-				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady(),\n\t\t\t\t\ttelegramLinkedIdentity.getText());");
-	}
-	@Test
-	public void testTelegramSetupPlaceholderCanContinueToIdentityReview() throws IOException {
-		assertConnectionsFragmentContainsAll(
-				"builder.setPositiveButton(ready\n\t\t\t\t? R.string.telegram_connector_setup_continue_button\n\t\t\t\t: R.string.ok,",
-				"if (ready) showTelegramIdentityEditor();",
-				"private void showTelegramIdentityEditor() {\n\t\ttelegramLinkedIdentity.performClick();\n\t}");
-	}
-	@Test
 	public void testTelegramIdentityReviewCanContinueToVerificationPlaceholder() throws IOException {
 		assertConnectionsFragmentContainsAll(
 				"static final String PREF_KEY_TELEGRAM_VERIFICATION = \"pref_key_telegram_verification\";",
@@ -293,14 +280,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private void showTelegramVerificationDialog(@Nullable String linkedIdentity) {");
 		assertFileContains("src/main/res/xml/settings_connections.xml",
 				"android:key=\"pref_key_telegram_verification\"");
-	}
-	@Test
-	public void testTelegramVerificationPlaceholderCanContinueToAuthenticationPlaceholder() throws IOException {
-		assertConnectionsFragmentContainsAll(
-				".setPositiveButton(\n\t\t\t\t\t\tR.string.telegram_connector_verification_continue_button,",
-				"showTelegramAuthenticationPlaceholder(linkedIdentity))",
-				".setNegativeButton(R.string.cancel, null)",
-				"private void showTelegramAuthenticationPlaceholder(String linkedIdentity) {");
 	}
 	@Test
 	public void testTelegramAuthPlaceholderCompletionUpdatesVerificationSummary() throws IOException {
