@@ -123,6 +123,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private void showTelegramLoginPlaceholder() {");
 	}
 	@Test
+	public void testStartupViewModelClosesTelegramAuthSessionWhenCleared() throws IOException {
+		assertStartupViewModelContainsAll(
+				"@Override\n\tprotected void onCleared() {\n\t\ttelegramAuthSession.close();\n\t\teventBus.removeListener(this);\n\t}");
+	}
+	@Test
 	public void testTelegramLoginPlaceholderStagesIdentifierInput() throws IOException {
 		assertStartupViewModelContainsAll(
 				"private String telegramLoginIdentifier = \"\";",

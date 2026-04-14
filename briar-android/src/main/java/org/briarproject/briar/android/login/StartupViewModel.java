@@ -108,6 +108,7 @@ public class StartupViewModel extends AndroidViewModel
 
 	@Override
 	protected void onCleared() {
+		telegramAuthSession.close();
 		eventBus.removeListener(this);
 	}
 
