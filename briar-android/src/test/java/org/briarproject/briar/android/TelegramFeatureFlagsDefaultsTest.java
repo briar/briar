@@ -49,7 +49,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"sendReturnsError(createSetAuthenticationPhoneNumberRequest(identifier))",
 				"sendReturnsError(createCheckAuthenticationCodeRequest(code))", "return recoverableError(RecoverableErrorDetail.INVALID_CODE);",
 				"sendReturnsError(createCheckAuthenticationPasswordRequest(password))",
-				"return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD);");
+				"return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD);",
+				"private void closeTdlibClient() {\n\t\tlastAuthorizationStateClassName = \"\";\n\t\tauthorizationStateClassName.set(\"\");\n\t\tif (tdlibClient == null) return;");
 	}
 	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts() throws IOException {

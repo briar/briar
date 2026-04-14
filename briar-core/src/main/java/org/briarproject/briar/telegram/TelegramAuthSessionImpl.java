@@ -332,6 +332,8 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 		return TelegramAuthState.RECOVERABLE_ERROR;
 	}
 	private void closeTdlibClient() {
+		lastAuthorizationStateClassName = "";
+		authorizationStateClassName.set("");
 		if (tdlibClient == null) return;
 		Object client = tdlibClient;
 		tdlibClient = null;
