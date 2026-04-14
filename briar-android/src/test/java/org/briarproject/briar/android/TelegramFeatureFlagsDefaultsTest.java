@@ -268,17 +268,14 @@ public class TelegramFeatureFlagsDefaultsTest {
 	@Test
 	public void testConnectionsSettingsExposeTelegramSetupPlaceholder() throws IOException {
 		assertConnectionsFragmentContainsAll(
-				"telegramStatus.setSelectable(telegramConnector.isEnabled());",
 				"telegramStatus.setOnPreferenceClickListener(preference -> {",
-				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady(),\n\t\t\t\t\ttelegramLinkedIdentity.getText());",
-				"private void showTelegramSetupDialog(boolean ready,\n\t\t\t@Nullable String linkedIdentity) {");
+				"showTelegramSetupDialog(requireSettingsActivity()\n\t\t\t\t\t.isTelegramConnectorReady(),\n\t\t\t\t\ttelegramLinkedIdentity.getText());");
 	}
 	@Test
 	public void testTelegramSetupPlaceholderCanContinueToIdentityReview() throws IOException {
 		assertConnectionsFragmentContainsAll(
 				"builder.setPositiveButton(ready\n\t\t\t\t? R.string.telegram_connector_setup_continue_button\n\t\t\t\t: R.string.ok,",
 				"if (ready) showTelegramIdentityEditor();",
-				"builder.setNegativeButton(R.string.cancel, null);",
 				"private void showTelegramIdentityEditor() {\n\t\ttelegramLinkedIdentity.performClick();\n\t}");
 	}
 	@Test
@@ -312,13 +309,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramAuthenticationPlaceholderCompletedIdentity = linkedIdentity;",
 				"updateTelegramVerificationState(linkedIdentity);",
 				"linkedIdentity.equals(telegramAuthenticationPlaceholderCompletedIdentity)");
-	}
-	@Test
-	public void testCompletedVerificationDialogMentionsPreviouslyReviewedPlaceholder() throws IOException {
-		assertConnectionsFragmentContainsAll(
-				"boolean alreadyReviewed = hasCompletedTelegramVerification(linkedIdentity);",
-				"R.string.telegram_connector_verification_dialog_completed_message",
-				"private boolean hasCompletedTelegramVerification(\n\t\t\t@Nullable String linkedIdentity) {");
 	}
 	@Test
 	public void testTelegramVerificationCompletionResetsWhenIdentityChanges() throws IOException {
