@@ -22,7 +22,10 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 	@Test
 	public void testTelegramConnectorStubIsWiredIntoCoreGraph() throws IOException {
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramConnector.java", "boolean isEnabled();");
+		assertFileContains("../briar-api/build.gradle", "apply plugin: 'org.jetbrains.kotlin.jvm'");
+		assertFileContains("../briar-api/build.gradle", "api \"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version\"");
+		assertFileContains("../briar-api/src/main/kotlin/org/briarproject/briar/api/telegram/TelegramConnector.kt", "interface TelegramConnector {\n\tfun isEnabled(): Boolean\n}");
+		assertFileMissing("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramConnector.java");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
 				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new StubTelegramConnector();\n\t\t}\n\t\treturn new NoOpTelegramConnector();");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/BriarCoreModule.java", "TelegramModule.class,");
@@ -30,7 +33,8 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 	@Test
 	public void testTelegramAuthSessionSeamIsWiredWithoutTdlibTypes() throws IOException {
-		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java", "public enum TelegramAuthState {\n\tIDENTIFIER_ENTRY,\n\tCODE_ENTRY,\n\tPASSWORD_ENTRY,\n\tREADY,\n\tCLOSED,\n\tRECOVERABLE_ERROR\n}");
+		assertFileContains("../briar-api/src/main/kotlin/org/briarproject/briar/api/telegram/TelegramAuthState.kt", "enum class TelegramAuthState {\n\tIDENTIFIER_ENTRY,\n\tCODE_ENTRY,\n\tPASSWORD_ENTRY,\n\tREADY,\n\tCLOSED,\n\tRECOVERABLE_ERROR\n}");
+		assertFileMissing("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java");
 		assertFileContains("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java", "public interface TelegramAuthSession {\n\tenum RecoverableErrorDetail {\n\t\tNONE,\n\t\tMISSING_TDLIB,\n\t\tINVALID_IDENTIFIER,\n\t\tINVALID_CODE,\n\t\tINVALID_PASSWORD\n\t}\n\tTelegramAuthState getCurrentState();\n\tRecoverableErrorDetail getRecoverableErrorDetail();\n\tvoid start();\n\tvoid submitIdentifier(String identifier);\n\tvoid submitCode(String code);\n\tvoid submitPassword(String password);\n\tvoid close();\n}");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java", "TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java", "class TelegramAuthSessionImpl implements TelegramAuthSession {");
@@ -316,6 +320,12 @@ public class TelegramFeatureFlagsDefaultsTest {
 	private static void assertFileContains(String moduleRelativePath, String expectedText) throws IOException {
 		String contents = new String(Files.readAllBytes(resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
 		assertTrue("Expected to find '" + expectedText + "' in " + moduleRelativePath, contents.contains(expectedText));
+	}
+	private static void assertFileMissing(String moduleRelativePath) {
+		Path cwd = Paths.get("").toAbsolutePath().normalize();
+		Path direct = cwd.resolve(moduleRelativePath).normalize();
+		Path nested = cwd.resolve("briar-android").resolve(moduleRelativePath).normalize();
+		assertTrue("Expected file to be absent: " + moduleRelativePath, !Files.exists(direct) && !Files.exists(nested));
 	}
 	private static void assertFileContainsAll(String moduleRelativePath, String... expectedTexts) throws IOException { for (String expectedText : expectedTexts) assertFileContains(moduleRelativePath, expectedText); }
 	private static void assertTelegramSubtitleConsumer(String moduleRelativePath) throws IOException { assertFileContains(moduleRelativePath, "protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {"); assertFileContains(moduleRelativePath, "showTelegramLinkedIdentitySubtitle(linkedIdentity);"); }
