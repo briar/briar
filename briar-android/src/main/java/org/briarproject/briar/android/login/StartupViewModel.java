@@ -260,7 +260,7 @@ public class StartupViewModel extends AndroidViewModel
 	}
 
 	void showPasswordFragment() {
-		telegramLoginCode = telegramLoginPassword = "";
+		telegramLoginIdentifier = telegramLoginCode = telegramLoginPassword = "";
 		telegramAuthSession.close();
 		telegramAuthState.setValue(telegramAuthSession.getCurrentState());
 		state.setValue(SIGNED_OUT);

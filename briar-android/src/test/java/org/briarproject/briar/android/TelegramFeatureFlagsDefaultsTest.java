@@ -116,7 +116,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertStartupViewModelContainsAll(
 				"enum State {SIGNED_OUT, TELEGRAM_LOGIN, SIGNED_IN, STARTING, MIGRATING, COMPACTING, STARTED}",
 				"void showTelegramLoginPlaceholder() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.start();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(TELEGRAM_LOGIN);\n\t}",
-				"void showPasswordFragment() {\n\t\ttelegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(SIGNED_OUT);\n\t}");
+				"void showPasswordFragment() {\n\t\ttelegramLoginIdentifier = telegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tstate.setValue(SIGNED_OUT);\n\t}");
 		assertFileContains("src/main/java/org/briarproject/briar/android/login/PasswordFragment.java",
 				"private void onTelegramLoginClick() {\n\t\tviewModel.showTelegramLoginPlaceholder();\n\t}");
 		assertStartupActivityContainsAll(
