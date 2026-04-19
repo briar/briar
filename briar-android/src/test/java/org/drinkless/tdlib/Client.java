@@ -56,6 +56,19 @@ public class Client {
 			emitAuthorizationState(new TdApi.AuthorizationStateWaitCode());
 			return;
 		}
+		if (request instanceof TdApi.CheckAuthenticationCode) {
+			TdApi.CheckAuthenticationCode codeRequest =
+					(TdApi.CheckAuthenticationCode) request;
+			if (codeRequest.code.contains("invalid")) {
+				if (resultHandler != null) {
+					resultHandler.onResult(new TdApi.Error());
+				}
+				return;
+			}
+			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
+			emitAuthorizationState(new TdApi.AuthorizationStateReady());
+			return;
+		}
 		if (request instanceof TdApi.Close) {
 			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
 			emitAuthorizationState(new TdApi.AuthorizationStateClosed());

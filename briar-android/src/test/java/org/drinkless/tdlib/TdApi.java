@@ -29,6 +29,9 @@ public abstract class TdApi {
 	public static class AuthorizationStateWaitCode {
 	}
 
+	public static class AuthorizationStateReady {
+	}
+
 	public static class AuthorizationStateClosed {
 	}
 
@@ -60,6 +63,14 @@ public abstract class TdApi {
 				PhoneNumberAuthenticationSettings settings) {
 			this.phoneNumber = phoneNumber;
 			this.settings = settings;
+		}
+	}
+
+	public static class CheckAuthenticationCode extends Function {
+		public final String code;
+
+		public CheckAuthenticationCode(String code) {
+			this.code = code;
 		}
 	}
 
