@@ -86,4 +86,22 @@ public class StubTelegramTdlibLoginClientTest {
 
 		client.close();
 	}
+
+	@Test
+	public void testSubmitCodeTransitionsToPasswordEntry() {
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		assertEquals(TelegramAuthState.PASSWORD_ENTRY,
+				client.submitCode("password-required"));
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber",
+				"CheckAuthenticationCode"), Client.getSentRequestNames());
+
+		client.close();
+	}
 }

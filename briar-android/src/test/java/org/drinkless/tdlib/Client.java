@@ -66,6 +66,11 @@ public class Client {
 				return;
 			}
 			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
+			if (codeRequest.code.contains("password-required")) {
+				emitAuthorizationState(
+						new TdApi.AuthorizationStateWaitPassword());
+				return;
+			}
 			emitAuthorizationState(new TdApi.AuthorizationStateReady());
 			return;
 		}

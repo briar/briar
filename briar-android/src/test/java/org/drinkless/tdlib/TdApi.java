@@ -29,6 +29,9 @@ public abstract class TdApi {
 	public static class AuthorizationStateWaitCode {
 	}
 
+	public static class AuthorizationStateWaitPassword {
+	}
+
 	public static class AuthorizationStateReady {
 	}
 
