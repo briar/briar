@@ -239,10 +239,11 @@ class StubTelegramTdlibLoginClient implements TelegramTdlibLoginClient {
 			throws ReflectiveOperationException {
 		Class<?> settingsClass = Class.forName(
 				"org.drinkless.tdlib.TdApi$PhoneNumberAuthenticationSettings");
+		Object settings = settingsClass.getConstructor().newInstance();
 		return Class.forName(
 				"org.drinkless.tdlib.TdApi$SetAuthenticationPhoneNumber")
 				.getConstructor(String.class, settingsClass)
-				.newInstance(identifier, null);
+				.newInstance(identifier, settings);
 	}
 	private Object createCheckAuthenticationCodeRequest(String code) throws ReflectiveOperationException {
 		return Class.forName("org.drinkless.tdlib.TdApi$CheckAuthenticationCode")
