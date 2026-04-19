@@ -46,6 +46,12 @@ public class Client {
 				}
 				return;
 			}
+			if (phoneNumberRequest.phoneNumber.contains("invalid")) {
+				if (resultHandler != null) {
+					resultHandler.onResult(new TdApi.Error());
+				}
+				return;
+			}
 			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
 			emitAuthorizationState(new TdApi.AuthorizationStateWaitCode());
 			return;

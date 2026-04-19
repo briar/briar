@@ -35,4 +35,20 @@ public class StubTelegramTdlibLoginClientTest {
 
 		client.close();
 	}
+
+	@Test
+	public void testSubmitInvalidIdentifierReturnsRecoverableError() {
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(TelegramAuthState.RECOVERABLE_ERROR,
+				client.submitIdentifier("invalid-phone"));
+		assertEquals(RecoverableErrorDetail.INVALID_IDENTIFIER,
+				client.getRecoverableErrorDetail());
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber"), Client.getSentRequestNames());
+		assertEquals("invalid-phone", Client.getLastPhoneNumber());
+
+		client.close();
+	}
 }
