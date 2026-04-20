@@ -156,4 +156,45 @@ public class StubTelegramTdlibLoginClientTest {
 
 		client.close();
 	}
+
+	@Test
+	public void testCloseAfterInvalidPasswordClearsRecoverableErrorAndAllowsRestart() {
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		assertEquals(TelegramAuthState.PASSWORD_ENTRY,
+				client.submitCode("password-required"));
+		assertEquals(TelegramAuthState.RECOVERABLE_ERROR,
+				client.submitPassword("invalid-password"));
+		assertEquals(RecoverableErrorDetail.INVALID_PASSWORD,
+				client.getRecoverableErrorDetail());
+
+		assertEquals(TelegramAuthState.CLOSED, client.close());
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber",
+				"CheckAuthenticationCode",
+				"CheckAuthenticationPassword",
+				"Close"), Client.getSentRequestNames());
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber",
+				"CheckAuthenticationCode",
+				"CheckAuthenticationPassword",
+				"Close",
+				"SetTdlibParameters",
+				"SetAuthenticationPhoneNumber"), Client.getSentRequestNames());
+
+		client.close();
+	}
 }
