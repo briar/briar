@@ -74,6 +74,19 @@ public class Client {
 			emitAuthorizationState(new TdApi.AuthorizationStateReady());
 			return;
 		}
+		if (request instanceof TdApi.CheckAuthenticationPassword) {
+			TdApi.CheckAuthenticationPassword passwordRequest =
+					(TdApi.CheckAuthenticationPassword) request;
+			if (passwordRequest.password.contains("invalid")) {
+				if (resultHandler != null) {
+					resultHandler.onResult(new TdApi.Error());
+				}
+				return;
+			}
+			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
+			emitAuthorizationState(new TdApi.AuthorizationStateReady());
+			return;
+		}
 		if (request instanceof TdApi.Close) {
 			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
 			emitAuthorizationState(new TdApi.AuthorizationStateClosed());

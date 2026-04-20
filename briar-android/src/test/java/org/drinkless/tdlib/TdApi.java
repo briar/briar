@@ -77,6 +77,14 @@ public abstract class TdApi {
 		}
 	}
 
+	public static class CheckAuthenticationPassword extends Function {
+		public final String password;
+
+		public CheckAuthenticationPassword(String password) {
+			this.password = password;
+		}
+	}
+
 	public static class Close extends Function {
 	}
 }
