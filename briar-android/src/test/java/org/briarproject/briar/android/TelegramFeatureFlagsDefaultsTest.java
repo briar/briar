@@ -26,6 +26,12 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../briar-api/build.gradle", "api \"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version\"");
 		assertFileContains("../briar-api/src/main/kotlin/org/briarproject/briar/api/telegram/TelegramConnector.kt", "interface TelegramConnector {\n\tfun isEnabled(): Boolean\n}");
 		assertFileMissing("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramConnector.java");
+		assertFileContains("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/NoOpTelegramConnector.kt",
+				"class NoOpTelegramConnector : TelegramConnector {");
+		assertFileMissing("../briar-core/src/main/java/org/briarproject/briar/telegram/NoOpTelegramConnector.java");
+		assertFileContains("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/StubTelegramConnector.kt",
+				"class StubTelegramConnector : TelegramConnector {");
+		assertFileMissing("../briar-core/src/main/java/org/briarproject/briar/telegram/StubTelegramConnector.java");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
 				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new StubTelegramConnector();\n\t\t}\n\t\treturn new NoOpTelegramConnector();");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/BriarCoreModule.java", "TelegramModule.class,");
@@ -37,8 +43,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileMissing("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthState.java");
 		assertFileContains("../briar-api/src/main/kotlin/org/briarproject/briar/api/telegram/TelegramAuthSession.kt", "interface TelegramAuthSession {\n\tenum class RecoverableErrorDetail {\n\t\tNONE,\n\t\tMISSING_TDLIB,\n\t\tINVALID_IDENTIFIER,\n\t\tINVALID_CODE,\n\t\tINVALID_PASSWORD\n\t}\n\n\tfun getCurrentState(): TelegramAuthState\n\tfun getRecoverableErrorDetail(): RecoverableErrorDetail\n\tfun start()\n\tfun submitIdentifier(identifier: String)\n\tfun submitCode(code: String)\n\tfun submitPassword(password: String)\n\tfun close()\n}");
 		assertFileMissing("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java");
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java", "TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java", "class TelegramAuthSessionImpl implements TelegramAuthSession {");
+		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
+				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
+		assertFileContains("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/TelegramAuthSessionImpl.kt",
+				"class TelegramAuthSessionImpl(");
+		assertFileMissing("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
 				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new TelegramAuthSessionImpl(\n\t\t\t\t\tnew StubTelegramTdlibLoginClient());\n\t\t}\n\t\treturn new TelegramAuthSessionImpl(new NoOpTelegramTdlibLoginClient());");
 	}
@@ -48,17 +57,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../briar-core/build.gradle", "implementation \"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version\"");
 		assertFileContains("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/TelegramTdlibLoginClient.kt", "interface TelegramTdlibLoginClient {\n\tfun start(): TelegramAuthState\n\tfun getRecoverableErrorDetail(): RecoverableErrorDetail\n\tfun submitIdentifier(identifier: String): TelegramAuthState\n\tfun submitCode(code: String): TelegramAuthState\n\tfun submitPassword(password: String): TelegramAuthState\n\tfun close(): TelegramAuthState\n}");
 		assertFileMissing("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java");
-		assertFileContainsAll("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
-				"public RecoverableErrorDetail getRecoverableErrorDetail() {\n\t\treturn tdlibLoginClient.getRecoverableErrorDetail();\n\t}",
-				"return recoverableError(RecoverableErrorDetail.MISSING_TDLIB);",
-				"return recoverableError(RecoverableErrorDetail.INVALID_IDENTIFIER);",
-				"case \"AuthorizationStateWaitTdlibParameters\":\n\t\t\tcase \"AuthorizationStateWaitPhoneNumber\":\n\t\t\t\treturn clearRecoverableErrorDetail(TelegramAuthState.IDENTIFIER_ENTRY);",
-				"send(createSetTdlibParametersRequest());",
+		assertFileContainsAll("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/TelegramAuthSessionImpl.kt",
+				"override fun getRecoverableErrorDetail(): RecoverableErrorDetail =",
+				"return recoverableError(RecoverableErrorDetail.MISSING_TDLIB)",
+				"return recoverableError(RecoverableErrorDetail.INVALID_IDENTIFIER)",
+				"\"AuthorizationStateWaitTdlibParameters\",",
+				"\"AuthorizationStateWaitPhoneNumber\" -> clearRecoverableErrorDetail(TelegramAuthState.IDENTIFIER_ENTRY)",
+				"send(createSetTdlibParametersRequest())",
 				"sendReturnsError(createSetAuthenticationPhoneNumberRequest(identifier))",
-				"sendReturnsError(createCheckAuthenticationCodeRequest(code))", "return recoverableError(RecoverableErrorDetail.INVALID_CODE);",
+				"sendReturnsError(createCheckAuthenticationCodeRequest(code))", "return recoverableError(RecoverableErrorDetail.INVALID_CODE)",
 				"sendReturnsError(createCheckAuthenticationPasswordRequest(password))",
-				"return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD);",
-				"private void closeTdlibClient() {\n\t\tlastAuthorizationStateClassName = \"\";\n\t\tauthorizationStateClassName.set(\"\");\n\t\tif (tdlibClient == null) return;");
+				"return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD)",
+				"private fun closeTdlibClient() {",
+				"lastAuthorizationStateClassName = \"\"",
+				"authorizationStateClassName.set(\"\")",
+				"val client = tdlibClient ?: return");
 	}
 	@Test
 	public void testBriarAndroidCanConsumePrebuiltTdlibAndroidArtifacts() throws IOException {
