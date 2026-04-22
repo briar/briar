@@ -44,7 +44,10 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 	@Test
 	public void testTelegramAuthSessionUsesHarborOwnedTdlibFacade() throws IOException {
-		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java", "interface TelegramTdlibLoginClient {\n\n\tTelegramAuthState start();\n\n\tRecoverableErrorDetail getRecoverableErrorDetail();\n\n\tTelegramAuthState submitIdentifier(String identifier);\n\n\tTelegramAuthState submitCode(String code);\n\n\tTelegramAuthState submitPassword(String password);\n\n\tTelegramAuthState close();\n}");
+		assertFileContains("../briar-core/build.gradle", "apply plugin: 'org.jetbrains.kotlin.jvm'");
+		assertFileContains("../briar-core/build.gradle", "implementation \"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version\"");
+		assertFileContains("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/TelegramTdlibLoginClient.kt", "interface TelegramTdlibLoginClient {\n\tfun start(): TelegramAuthState\n\tfun getRecoverableErrorDetail(): RecoverableErrorDetail\n\tfun submitIdentifier(identifier: String): TelegramAuthState\n\tfun submitCode(code: String): TelegramAuthState\n\tfun submitPassword(password: String): TelegramAuthState\n\tfun close(): TelegramAuthState\n}");
+		assertFileMissing("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramTdlibLoginClient.java");
 		assertFileContainsAll("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java",
 				"public RecoverableErrorDetail getRecoverableErrorDetail() {\n\t\treturn tdlibLoginClient.getRecoverableErrorDetail();\n\t}",
 				"return recoverableError(RecoverableErrorDetail.MISSING_TDLIB);",
@@ -139,6 +142,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private String telegramLoginIdentifier = \"\";",
 				"String getTelegramLoginIdentifier() {\n\t\treturn telegramLoginIdentifier;\n\t}",
 				"void setTelegramLoginIdentifier(String identifier) {\n\t\ttelegramLoginIdentifier = identifier;\n\t}");
+		assertFileContains("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+				"public class TelegramLoginPlaceholderFragment extends BaseFragment {");
+		assertFileMissing("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.kt");
 		assertTelegramLoginPlaceholderFragmentContainsAll(
 				"TextInputEditText identifier =\n\t\t\t\tv.findViewById(R.id.telegram_login_identifier);",
 				"identifier.setText(viewModel.getTelegramLoginIdentifier());",
@@ -153,7 +159,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"telegramAuthSession.submitCode(telegramLoginCode.trim());",
 				"telegramAuthState.setValue(telegramAuthSession.getCurrentState());",
 				"telegramLoginCode = telegramLoginPassword = \"\";\n\t\ttelegramAuthSession.close();\n\t\ttelegramAuthSession.start();");
-		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+		assertTelegramLoginPlaceholderFragmentContainsAll(
 				"View codeEntryStep = v.findViewById(R.id.telegram_login_code_step);",
 				"TextInputEditText code =\n\t\t\t\tv.findViewById(R.id.telegram_login_code);",
 				"viewModel.setTelegramLoginCode(s.toString());",
@@ -168,7 +174,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"String getTelegramLoginPassword() {\n\t\treturn telegramLoginPassword;\n\t}",
 				"void setTelegramLoginPassword(String password) {\n\t\ttelegramLoginPassword = password;\n\t}",
 				"void submitTelegramLoginPassword() {\n\t\ttelegramAuthSession.submitPassword(telegramLoginPassword);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_PASSWORD) {\n\t\t\ttelegramLoginPassword = \"\";\n\t\t}\n\t}");
-		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/TelegramLoginPlaceholderFragment.java",
+		assertTelegramLoginPlaceholderFragmentContainsAll(
 				"View passwordEntryStep =\n\t\t\t\tv.findViewById(R.id.telegram_login_password_step);",
 				"TextInputEditText password =\n\t\t\t\tv.findViewById(R.id.telegram_login_password);",
 				"viewModel.setTelegramLoginPassword(s.toString());",

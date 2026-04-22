@@ -1,6 +1,15 @@
 apply plugin: 'java-library'
+apply plugin: 'org.jetbrains.kotlin.jvm'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+compileKotlin {
+	kotlinOptions.jvmTarget = '1.8'
+}
+
+compileTestKotlin {
+	kotlinOptions.jvmTarget = '1.8'
+}
 
 apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'idea'
@@ -10,6 +19,7 @@ apply from: '../dagger.gradle'
 
 dependencies {
 	api project(':briar-api')
+	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
 	implementation project(':bramble-core')
 
