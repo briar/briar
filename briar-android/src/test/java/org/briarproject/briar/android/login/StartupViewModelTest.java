@@ -24,6 +24,7 @@ import org.junit.Test;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_OUT;
+import static org.briarproject.briar.android.login.StartupViewModel.State.TELEGRAM_LOGIN;
 import static org.briarproject.briar.android.viewmodel.LiveDataTestUtil.getOrAwaitValue;
 import static org.junit.Assert.assertEquals;
 
@@ -114,11 +115,38 @@ public class StartupViewModelTest extends BrambleMockTestCase {
 		assertEquals(1, telegramAuthSession.closeCalls);
 	}
 
+	@Test
+	public void testShowTelegramLoginPlaceholderRestartsIdentifierEntryAfterFallback()
+			throws Exception {
+		viewModel.setTelegramLoginIdentifier(" +123456789 ");
+		viewModel.setTelegramLoginCode("12345");
+		viewModel.setTelegramLoginPassword("secret");
+		telegramAuthSession.recoverableErrorDetail =
+				RecoverableErrorDetail.INVALID_PASSWORD;
+		telegramAuthSession.currentState =
+				TelegramAuthState.RECOVERABLE_ERROR;
+
+		viewModel.showPasswordFragment();
+		viewModel.showTelegramLoginPlaceholder();
+
+		assertEquals("", viewModel.getTelegramLoginIdentifier());
+		assertEquals("", viewModel.getTelegramLoginCode());
+		assertEquals("", viewModel.getTelegramLoginPassword());
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY,
+				getOrAwaitValue(viewModel.getTelegramAuthState()));
+		assertEquals(RecoverableErrorDetail.NONE,
+				viewModel.getTelegramRecoverableErrorDetail());
+		assertEquals(TELEGRAM_LOGIN, getOrAwaitValue(viewModel.getState()));
+		assertEquals(1, telegramAuthSession.closeCalls);
+		assertEquals(1, telegramAuthSession.startCalls);
+	}
+
 	private static class FakeTelegramAuthSession implements TelegramAuthSession {
 		private TelegramAuthState currentState = TelegramAuthState.CLOSED;
 		private RecoverableErrorDetail recoverableErrorDetail =
 				RecoverableErrorDetail.NONE;
 		private int closeCalls = 0;
+		private int startCalls = 0;
 
 		@Override
 		public TelegramAuthState getCurrentState() {
@@ -132,6 +160,7 @@ public class StartupViewModelTest extends BrambleMockTestCase {
 
 		@Override
 		public void start() {
+			startCalls++;
 			currentState = TelegramAuthState.IDENTIFIER_ENTRY;
 		}
 
