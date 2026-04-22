@@ -78,10 +78,17 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 		code.setText(viewModel.getTelegramLoginCode());
 		password.setText(viewModel.getTelegramLoginPassword());
 		viewModel.getTelegramAuthState().observe(getViewLifecycleOwner(),
-				authState -> showCurrentStep(identifierStep, codeEntryStep,
-						passwordEntryStep, confirmationStep, continueButton,
-						codeContinueButton, passwordContinueButton,
-						confirmationMessage, passwordFallbackButton));
+				authState -> {
+					syncField(identifier,
+							viewModel.getTelegramLoginIdentifier());
+					syncField(code, viewModel.getTelegramLoginCode());
+					syncField(password, viewModel.getTelegramLoginPassword());
+					showCurrentStep(identifierStep, codeEntryStep,
+							passwordEntryStep, confirmationStep,
+							continueButton, codeContinueButton,
+							passwordContinueButton, confirmationMessage,
+							passwordFallbackButton);
+				});
 		identifier.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -219,6 +226,12 @@ public class TelegramLoginPlaceholderFragment extends BaseFragment {
 			passwordEntryStep.setVisibility(View.GONE);
 			confirmationStep.setVisibility(View.GONE);
 		}
+	}
+
+	private void syncField(TextInputEditText field, String value) {
+		Editable editable = field.getText();
+		String current = editable == null ? "" : editable.toString();
+		if (!current.equals(value)) field.setText(value);
 	}
 
 	private int getLoginMessage(TelegramAuthState authState) {
