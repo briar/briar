@@ -196,6 +196,41 @@ public class StubTelegramTdlibLoginClientTest {
 	}
 
 	@Test
+	public void testStartIgnoresDelayedReadyUpdateFromClosedPasswordSession()
+			throws Exception {
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+		TelegramAuthState[] delayedPasswordResult = new TelegramAuthState[1];
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		assertEquals(TelegramAuthState.PASSWORD_ENTRY,
+				client.submitCode("password-required"));
+
+		Client.setAuthorizationUpdateDelaySequenceMs(300L, 0L, 400L);
+		Thread submitPasswordThread = new Thread(() ->
+				delayedPasswordResult[0] = client.submitPassword("hunter2"));
+		submitPasswordThread.start();
+
+		Thread.sleep(50L);
+
+		assertEquals(TelegramAuthState.CLOSED, client.close());
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+
+		submitPasswordThread.join();
+		assertEquals(TelegramAuthState.CLOSED, delayedPasswordResult[0]);
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber",
+				"CheckAuthenticationCode",
+				"CheckAuthenticationPassword",
+				"Close"), Client.getSentRequestNames());
+
+		client.close();
+	}
+
+	@Test
 	public void testSubmitInvalidPasswordReturnsRecoverableErrorAndAllowsRetry() {
 		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
 

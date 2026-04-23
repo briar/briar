@@ -68,9 +68,11 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"sendReturnsError(createCheckAuthenticationCodeRequest(code))", "return recoverableError(RecoverableErrorDetail.INVALID_CODE)",
 				"sendReturnsError(createCheckAuthenticationPasswordRequest(password))",
 				"return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD)",
+				"private class PendingAuthorizationUpdate {",
+				"pendingAuthorizationUpdate = it",
 				"private fun closeTdlibClient() {",
 				"lastAuthorizationStateClassName = \"\"",
-				"authorizationStateClassName.set(\"\")",
+				"completePendingAuthorizationUpdate(\"AuthorizationStateClosed\")",
 				"val client = tdlibClient ?: return");
 	}
 	@Test

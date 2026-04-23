@@ -65,9 +65,17 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 		private const val AUTHORIZATION_UPDATE_TIMEOUT_MS = 1_000L
 	}
 
-	private val authorizationStateClassName = AtomicReference("")
-	private var updateReceived = CountDownLatch(0)
+	private class PendingAuthorizationUpdate {
+		val authorizationStateClassName = AtomicReference("")
+		val updateReceived = CountDownLatch(1)
+	}
+
 	private var lastAuthorizationStateClassName = ""
+	@Volatile
+	private var activeClientGeneration = 0L
+	private var nextClientGeneration = 0L
+	@Volatile
+	private var pendingAuthorizationUpdate: PendingAuthorizationUpdate? = null
 	private var recoverableErrorDetail = RecoverableErrorDetail.NONE
 	private var tdlibClient: Any? = null
 
@@ -88,20 +96,23 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 		}
 		try {
 			if (lastAuthorizationStateClassName == "AuthorizationStateWaitTdlibParameters") {
-				prepareAuthorizationUpdate()
+				val tdlibParametersUpdate = prepareAuthorizationUpdate()
 				send(createSetTdlibParametersRequest())
-				if (awaitPreparedAuthorizationStateClassName() != "AuthorizationStateWaitPhoneNumber") {
+				if (awaitPreparedAuthorizationStateClassName(tdlibParametersUpdate) !=
+						"AuthorizationStateWaitPhoneNumber") {
 					return recoverableError(RecoverableErrorDetail.NONE)
 				}
 			}
 			if (lastAuthorizationStateClassName != "AuthorizationStateWaitPhoneNumber") {
 				return recoverableError(RecoverableErrorDetail.NONE)
 			}
-			prepareAuthorizationUpdate()
+			val phoneNumberUpdate = prepareAuthorizationUpdate()
 			if (sendReturnsError(createSetAuthenticationPhoneNumberRequest(identifier))) {
 				return recoverableError(RecoverableErrorDetail.INVALID_IDENTIFIER)
 			}
-			return mapAuthorizationStateClassName(awaitPreparedAuthorizationStateClassName())
+			return mapAuthorizationStateClassName(
+					awaitPreparedAuthorizationStateClassName(phoneNumberUpdate),
+			)
 		} catch (e: ReflectiveOperationException) {
 			closeTdlibClient()
 			return recoverableError(RecoverableErrorDetail.NONE)
@@ -121,11 +132,11 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 			return recoverableError(RecoverableErrorDetail.NONE)
 		}
 		try {
-			prepareAuthorizationUpdate()
+			val codeUpdate = prepareAuthorizationUpdate()
 			if (sendReturnsError(createCheckAuthenticationCodeRequest(code))) {
 				return recoverableError(RecoverableErrorDetail.INVALID_CODE)
 			}
-			return mapAuthorizationStateClassName(awaitPreparedAuthorizationStateClassName())
+			return mapAuthorizationStateClassName(awaitPreparedAuthorizationStateClassName(codeUpdate))
 		} catch (e: ReflectiveOperationException) {
 			closeTdlibClient()
 			return recoverableError(RecoverableErrorDetail.NONE)
@@ -145,11 +156,13 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 			return recoverableError(RecoverableErrorDetail.NONE)
 		}
 		try {
-			prepareAuthorizationUpdate()
+			val passwordUpdate = prepareAuthorizationUpdate()
 			if (sendReturnsError(createCheckAuthenticationPasswordRequest(password))) {
 				return recoverableError(RecoverableErrorDetail.INVALID_PASSWORD)
 			}
-			return mapAuthorizationStateClassName(awaitPreparedAuthorizationStateClassName())
+			return mapAuthorizationStateClassName(
+					awaitPreparedAuthorizationStateClassName(passwordUpdate),
+			)
 		} catch (e: ReflectiveOperationException) {
 			closeTdlibClient()
 			return recoverableError(RecoverableErrorDetail.NONE)
@@ -169,10 +182,10 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 	}
 
 	private fun awaitAuthorizationStateClassName(createClient: Boolean): String {
-		prepareAuthorizationUpdate()
+		val pendingAuthorizationUpdate = prepareAuthorizationUpdate()
 		return try {
 			if (createClient) tdlibClient = createTdlibClient()
-			awaitPreparedAuthorizationStateClassName()
+			awaitPreparedAuthorizationStateClassName(pendingAuthorizationUpdate)
 		} catch (e: ReflectiveOperationException) {
 			closeTdlibClient()
 			""
@@ -186,27 +199,32 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 		}
 	}
 
-	private fun prepareAuthorizationUpdate() {
-		authorizationStateClassName.set("")
-		updateReceived = CountDownLatch(1)
+	private fun prepareAuthorizationUpdate(): PendingAuthorizationUpdate {
+		return PendingAuthorizationUpdate().also {
+			pendingAuthorizationUpdate = it
+		}
 	}
 
 	@Throws(InterruptedException::class)
-	private fun awaitPreparedAuthorizationStateClassName(): String {
-		if (tdlibClient == null || !updateReceived.await(
+	private fun awaitPreparedAuthorizationStateClassName(
+		pendingAuthorizationUpdate: PendingAuthorizationUpdate,
+	): String {
+		if (tdlibClient == null || !pendingAuthorizationUpdate.updateReceived.await(
 					AUTHORIZATION_UPDATE_TIMEOUT_MS,
 					TimeUnit.MILLISECONDS,
 			)) {
 			closeTdlibClient()
 			return ""
 		}
-		return authorizationStateClassName.get().also {
+		return pendingAuthorizationUpdate.authorizationStateClassName.get().also {
 			lastAuthorizationStateClassName = it
 		}
 	}
 
 	@Throws(ReflectiveOperationException::class)
 	private fun createTdlibClient(): Any {
+		val clientGeneration = ++nextClientGeneration
+		activeClientGeneration = clientGeneration
 		val clientClass = Class.forName("org.drinkless.tdlib.Client")
 		val resultHandlerClass = Class.forName("org.drinkless.tdlib.Client\$ResultHandler")
 		val exceptionHandlerClass = Class.forName("org.drinkless.tdlib.Client\$ExceptionHandler")
@@ -214,10 +232,14 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 				resultHandlerClass.classLoader,
 				arrayOf(resultHandlerClass),
 			) { _, method, args ->
-			if (method.name == "onResult" && args != null && args.size == 1) {
+			val pendingAuthorizationUpdate = pendingAuthorizationUpdate
+			if (clientGeneration == activeClientGeneration &&
+					method.name == "onResult" && args != null && args.size == 1 &&
+					pendingAuthorizationUpdate != null) {
 				val className = getAuthorizationStateClassName(args[0])
-				if (className.isNotEmpty() && authorizationStateClassName.compareAndSet("", className)) {
-					updateReceived.countDown()
+				if (className.isNotEmpty() &&
+						pendingAuthorizationUpdate.authorizationStateClassName.compareAndSet("", className)) {
+					pendingAuthorizationUpdate.updateReceived.countDown()
 				}
 			}
 			null
@@ -354,7 +376,7 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 
 	private fun closeTdlibClient() {
 		lastAuthorizationStateClassName = ""
-		authorizationStateClassName.set("")
+		completePendingAuthorizationUpdate("AuthorizationStateClosed")
 		val client = tdlibClient ?: return
 		tdlibClient = null
 		try {
@@ -367,6 +389,14 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 			send.invoke(client, closeRequest, null)
 		} catch (_: ReflectiveOperationException) {
 		} catch (_: LinkageError) {
+		}
+	}
+
+	private fun completePendingAuthorizationUpdate(className: String) {
+		pendingAuthorizationUpdate?.let {
+			if (it.authorizationStateClassName.compareAndSet("", className)) {
+				it.updateReceived.countDown()
+			}
 		}
 	}
 
