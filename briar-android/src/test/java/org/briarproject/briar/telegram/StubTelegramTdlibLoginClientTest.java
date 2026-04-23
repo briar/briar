@@ -49,6 +49,26 @@ public class StubTelegramTdlibLoginClientTest {
 	}
 
 	@Test
+	public void testSubmitIdentifierWaitsForBriefDelayedAuthorizationUpdate() {
+		Client.setAuthorizationUpdateDelaySequenceMs(0L, 0L, 300L);
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber"), Client.getSentRequestNames());
+		assertEquals("+123456789", Client.getLastPhoneNumber());
+
+		client.close();
+	}
+
+	@Test
 	public void testSubmitInvalidIdentifierReturnsRecoverableError() {
 		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
 

@@ -14,6 +14,8 @@ public class Client {
 	}
 
 	private static final List<String> sentRequestNames = new ArrayList<>();
+	private static final List<Long> authorizationUpdateDelaySequenceMs =
+			new ArrayList<>();
 	private static long authorizationUpdateDelayMs = 0L;
 	private static String lastPhoneNumber = "";
 
@@ -98,12 +100,18 @@ public class Client {
 
 	public static void resetTestState() {
 		sentRequestNames.clear();
+		authorizationUpdateDelaySequenceMs.clear();
 		authorizationUpdateDelayMs = 0L;
 		lastPhoneNumber = "";
 	}
 
 	public static void setAuthorizationUpdateDelayMs(long delayMs) {
 		authorizationUpdateDelayMs = delayMs;
+	}
+
+	public static void setAuthorizationUpdateDelaySequenceMs(long... delayMs) {
+		authorizationUpdateDelaySequenceMs.clear();
+		for (long delay : delayMs) authorizationUpdateDelaySequenceMs.add(delay);
 	}
 
 	public static List<String> getSentRequestNames() {
@@ -115,19 +123,27 @@ public class Client {
 	}
 
 	private void emitAuthorizationState(Object authorizationState) {
+		long delayMs = getAuthorizationUpdateDelayMs();
 		Runnable emit = () -> updateHandler.onResult(
 				new TdApi.UpdateAuthorizationState(authorizationState));
-		if (authorizationUpdateDelayMs <= 0L) {
+		if (delayMs <= 0L) {
 			emit.run();
 			return;
 		}
 		new Thread(() -> {
 			try {
-				Thread.sleep(authorizationUpdateDelayMs);
+				Thread.sleep(delayMs);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
 			emit.run();
 		}).start();
+	}
+
+	private static long getAuthorizationUpdateDelayMs() {
+		if (!authorizationUpdateDelaySequenceMs.isEmpty()) {
+			return authorizationUpdateDelaySequenceMs.remove(0);
+		}
+		return authorizationUpdateDelayMs;
 	}
 }
