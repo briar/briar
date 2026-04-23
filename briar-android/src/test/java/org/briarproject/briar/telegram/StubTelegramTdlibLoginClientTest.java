@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StubTelegramTdlibLoginClientTest {
 
@@ -262,8 +263,8 @@ public class StubTelegramTdlibLoginClientTest {
 	}
 
 	@Test
-	public void testSubmitPasswordWaitsForBriefDelayedReadyAuthorizationUpdate() {
-		Client.setAuthorizationUpdateDelaySequenceMs(0L, 0L, 0L, 0L, 300L);
+	public void testSubmitPasswordWaitsForDelayedReadyAuthorizationUpdate() {
+		Client.setAuthorizationUpdateDelaySequenceMs(0L, 0L, 0L, 0L, 500L);
 		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
 
 		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
@@ -271,10 +272,14 @@ public class StubTelegramTdlibLoginClientTest {
 				client.submitIdentifier("+123456789"));
 		assertEquals(TelegramAuthState.PASSWORD_ENTRY,
 				client.submitCode("password-required"));
+		long startTime = System.currentTimeMillis();
 		assertEquals(TelegramAuthState.READY,
 				client.submitPassword("hunter2"));
+		long elapsed = System.currentTimeMillis() - startTime;
 		assertEquals(RecoverableErrorDetail.NONE,
 				client.getRecoverableErrorDetail());
+		assertTrue("Expected delayed password update wait, got " + elapsed + "ms",
+				elapsed >= 400L);
 		assertEquals(Arrays.asList("SetTdlibParameters",
 				"SetAuthenticationPhoneNumber",
 				"CheckAuthenticationCode",
