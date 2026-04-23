@@ -70,6 +70,28 @@ public class StubTelegramTdlibLoginClientTest {
 	}
 
 	@Test
+	public void testSubmitIdentifierReturnsRecoverableErrorWhenCodeUpdateExceedsTimeout() {
+		Client.setAuthorizationUpdateDelaySequenceMs(0L, 0L, 1_200L);
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		long startTime = System.currentTimeMillis();
+		assertEquals(TelegramAuthState.RECOVERABLE_ERROR,
+				client.submitIdentifier("+123456789"));
+		long elapsed = System.currentTimeMillis() - startTime;
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertTrue("Expected identifier wait timeout around 1s, got " + elapsed + "ms",
+				elapsed >= 900L);
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber",
+				"Close"), Client.getSentRequestNames());
+		assertEquals("+123456789", Client.getLastPhoneNumber());
+
+		client.close();
+	}
+
+	@Test
 	public void testSubmitInvalidIdentifierReturnsRecoverableError() {
 		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
 
