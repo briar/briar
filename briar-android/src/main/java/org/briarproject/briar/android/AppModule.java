@@ -55,6 +55,7 @@ import org.briarproject.briar.android.settings.SettingsModule;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.test.TestAvatarCreatorImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
+import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
@@ -369,7 +370,7 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableTelegramConnector() {
-				return false;
+				return BuildConfig.TELEGRAM_CONNECTOR_ENABLED;
 			}
 		};
 	}

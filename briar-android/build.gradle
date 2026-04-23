@@ -18,6 +18,9 @@ def getStdout = { command, defaultValue ->
 def tdlibDir = rootProject.file('third_party/tdlib')
 def tdlibJavaDir = new File(tdlibDir, 'java')
 def tdlibJniLibsDir = new File(tdlibDir, 'libs')
+def telegramConnectorEnabled =
+		(project.findProperty('harbor.telegramConnector.enabled') ?: 'false')
+				.toString().toBoolean()
 
 android {
 	compileSdk 35
@@ -36,6 +39,8 @@ android {
 		versionName "1.5.17"
 		applicationId "org.briarproject.briar.android"
 		buildConfigField "String", "TorVersion", "\"$tor_version\""
+		buildConfigField "boolean", "TELEGRAM_CONNECTOR_ENABLED",
+			"${telegramConnectorEnabled}"
 
 		vectorDrawables.useSupportLibrary = true
 		buildConfigField "String", "GitHash",

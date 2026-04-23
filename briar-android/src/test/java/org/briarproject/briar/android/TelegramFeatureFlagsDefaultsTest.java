@@ -13,7 +13,9 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 	@Test
 	public void testAndroidAndHeadlessDefaultTelegramConnectorToDisabled() throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/AppModule.java", "public boolean shouldEnableTelegramConnector() {\n\t\t\t\treturn false;");
+		assertFileContains("build.gradle", "project.findProperty('harbor.telegramConnector.enabled') ?: 'false'");
+		assertFileContains("build.gradle", "buildConfigField \"boolean\", \"TELEGRAM_CONNECTOR_ENABLED\"");
+		assertFileContains("src/main/java/org/briarproject/briar/android/AppModule.java", "return BuildConfig.TELEGRAM_CONNECTOR_ENABLED;");
 		assertFileContains("../briar-headless/src/main/java/org/briarproject/briar/headless/HeadlessModule.kt", "override fun shouldEnableTelegramConnector() = false");
 	}
 	@Test
