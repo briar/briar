@@ -182,6 +182,30 @@ public class StubTelegramTdlibLoginClientTest {
 	}
 
 	@Test
+	public void testSubmitCodeReturnsRecoverableErrorWhenPasswordUpdateExceedsTimeout() {
+		Client.setAuthorizationUpdateDelaySequenceMs(0L, 0L, 0L, 1_200L);
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		long startTime = System.currentTimeMillis();
+		assertEquals(TelegramAuthState.RECOVERABLE_ERROR,
+				client.submitCode("password-required"));
+		long elapsed = System.currentTimeMillis() - startTime;
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertTrue("Expected password-entry wait timeout around 1s, got " + elapsed + "ms",
+				elapsed >= 900L);
+		assertEquals(Arrays.asList("SetTdlibParameters",
+				"SetAuthenticationPhoneNumber",
+				"CheckAuthenticationCode",
+				"Close"), Client.getSentRequestNames());
+
+		client.close();
+	}
+
+	@Test
 	public void testSubmitCodeTransitionsToPasswordEntry() {
 		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
 
