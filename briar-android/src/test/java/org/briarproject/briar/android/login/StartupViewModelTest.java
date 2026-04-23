@@ -141,6 +141,30 @@ public class StartupViewModelTest extends BrambleMockTestCase {
 		assertEquals(1, telegramAuthSession.startCalls);
 	}
 
+	@Test
+	public void testRetryTelegramLoginAfterStartTimeoutFallback() throws Exception {
+		// Simulate a start() timeout fallback that sets RECOVERABLE_ERROR
+		telegramAuthSession.currentState = TelegramAuthState.RECOVERABLE_ERROR;
+		telegramAuthSession.recoverableErrorDetail = RecoverableErrorDetail.NONE;
+
+		viewModel.showTelegramLoginPlaceholder();
+
+		// Verify that the UI transitions to identifier entry after timeout fallback
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY,
+				getOrAwaitValue(viewModel.getTelegramAuthState()));
+		assertEquals(RecoverableErrorDetail.NONE,
+				viewModel.getTelegramRecoverableErrorDetail());
+		assertEquals(TELEGRAM_LOGIN, getOrAwaitValue(viewModel.getState()));
+		// Verify that start() is called to restart the login flow
+		assertEquals(1, telegramAuthSession.startCalls);
+		assertEquals(0, telegramAuthSession.closeCalls);
+
+		// Verify that we can proceed with identifier submission after retry
+		viewModel.setTelegramLoginIdentifier("+123456789");
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY,
+				getOrAwaitValue(viewModel.getTelegramAuthState()));
+	}
+
 	private static class FakeTelegramAuthSession implements TelegramAuthSession {
 		private TelegramAuthState currentState = TelegramAuthState.CLOSED;
 		private RecoverableErrorDetail recoverableErrorDetail =
