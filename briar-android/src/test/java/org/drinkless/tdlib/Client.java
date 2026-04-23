@@ -14,6 +14,7 @@ public class Client {
 	}
 
 	private static final List<String> sentRequestNames = new ArrayList<>();
+	private static long authorizationUpdateDelayMs = 0L;
 	private static String lastPhoneNumber = "";
 
 	private final ResultHandler updateHandler;
@@ -97,7 +98,12 @@ public class Client {
 
 	public static void resetTestState() {
 		sentRequestNames.clear();
+		authorizationUpdateDelayMs = 0L;
 		lastPhoneNumber = "";
+	}
+
+	public static void setAuthorizationUpdateDelayMs(long delayMs) {
+		authorizationUpdateDelayMs = delayMs;
 	}
 
 	public static List<String> getSentRequestNames() {
@@ -109,7 +115,19 @@ public class Client {
 	}
 
 	private void emitAuthorizationState(Object authorizationState) {
-		updateHandler.onResult(
+		Runnable emit = () -> updateHandler.onResult(
 				new TdApi.UpdateAuthorizationState(authorizationState));
+		if (authorizationUpdateDelayMs <= 0L) {
+			emit.run();
+			return;
+		}
+		new Thread(() -> {
+			try {
+				Thread.sleep(authorizationUpdateDelayMs);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			emit.run();
+		}).start();
 	}
 }

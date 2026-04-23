@@ -62,7 +62,7 @@ class NoOpTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 
 	private companion object {
-		private const val AUTHORIZATION_UPDATE_TIMEOUT_MS = 250L
+		private const val AUTHORIZATION_UPDATE_TIMEOUT_MS = 1_000L
 	}
 
 	private val authorizationStateClassName = AtomicReference("")
