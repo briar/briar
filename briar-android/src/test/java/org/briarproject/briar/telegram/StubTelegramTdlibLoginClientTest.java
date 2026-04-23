@@ -50,6 +50,24 @@ public class StubTelegramTdlibLoginClientTest {
 	}
 
 	@Test
+	public void testStartReturnsRecoverableErrorWhenInitialAuthorizationUpdateExceedsTimeout() {
+		Client.setAuthorizationUpdateDelayMs(1_200L);
+		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
+
+		long startTime = System.currentTimeMillis();
+		assertEquals(TelegramAuthState.RECOVERABLE_ERROR, client.start());
+		long elapsed = System.currentTimeMillis() - startTime;
+		assertEquals(RecoverableErrorDetail.NONE,
+				client.getRecoverableErrorDetail());
+		assertTrue("Expected start wait timeout around 1s, got " + elapsed + "ms",
+				elapsed >= 900L);
+		assertEquals(Arrays.asList("Close"), Client.getSentRequestNames());
+		assertEquals("", Client.getLastPhoneNumber());
+
+		client.close();
+	}
+
+	@Test
 	public void testSubmitIdentifierWaitsForBriefDelayedAuthorizationUpdate() {
 		Client.setAuthorizationUpdateDelaySequenceMs(0L, 0L, 300L);
 		StubTelegramTdlibLoginClient client = new StubTelegramTdlibLoginClient();
