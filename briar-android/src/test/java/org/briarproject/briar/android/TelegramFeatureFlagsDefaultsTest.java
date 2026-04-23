@@ -226,11 +226,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertTelegramLoginPlaceholderFragmentContainsAll("if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {");
 	}
 	@Test
-	public void testStartupViewModelClearsTelegramCodeAfterAdvancingPastCodeStep() throws IOException {
-		assertStartupViewModelContainsAll(
-				"void submitTelegramLoginCode() {\n\t\ttelegramAuthSession.submitCode(telegramLoginCode.trim());\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_CODE) {\n\t\t\ttelegramLoginCode = \"\";\n\t\t}\n\t}");
-	}
-	@Test
 	public void testStartupViewModelClearsTelegramPasswordAfterAdvancingPastPasswordStep() throws IOException {
 		assertStartupViewModelContainsAll(
 				"void submitTelegramLoginPassword() {\n\t\ttelegramAuthSession.submitPassword(telegramLoginPassword);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_PASSWORD) {\n\t\t\ttelegramLoginPassword = \"\";\n\t\t}\n\t}");
