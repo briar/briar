@@ -88,18 +88,21 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"TelegramConnector telegramConnector;",
 				"telegramStatus.setVisible(telegramConnector.isEnabled());",
 				"telegramStatus.setSummary(requireSettingsActivity()\n\t\t\t\t.isTelegramConnectorReady()\n\t\t\t\t? R.string.telegram_connector_settings_ready_summary\n\t\t\t\t: R.string.telegram_connector_settings_summary);");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java", "boolean isTelegramConnectorReady() {\n\t\treturn getBriarController().isTelegramConnectorReady();\n\t}");
+		assertFileContains("src/main/kotlin/org/briarproject/briar/android/settings/SettingsActivity.kt",
+				"fun isTelegramConnectorReady(): Boolean =\n\t\t\tgetBriarController().isTelegramConnectorReady()");
 		assertFileContains("src/main/res/xml/settings_connections.xml", "android:key=\"pref_key_telegram_status\"");
 	}
 	@Test
 	public void testBriarControllerExposesTelegramConnectorReadinessSeam() throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarController.java", "boolean isTelegramConnectorReady();");
+		assertFileContains("src/main/kotlin/org/briarproject/briar/android/controller/BriarController.kt",
+				"fun isTelegramConnectorReady(): Boolean");
 		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java", "private final TelegramConnector telegramConnector;");
 		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java", "public boolean isTelegramConnectorReady() {\n\t\treturn accountSignedIn() && telegramConnector.isEnabled();\n\t}");
 	}
 	@Test
 	public void testBriarControllerExposesTelegramIdentityStagingSeam() throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarController.java", "void getTelegramLinkedIdentity(ResultHandler<String> handler);");
+		assertFileContains("src/main/kotlin/org/briarproject/briar/android/controller/BriarController.kt",
+				"fun getTelegramLinkedIdentity(handler: ResultHandler<String>)");
 		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java", "public void getTelegramLinkedIdentity(ResultHandler<String> handler) {");
 		assertFileContains("src/main/java/org/briarproject/briar/android/controller/BriarControllerImpl.java", "handler.onResult(settings.get(\"pref_key_telegram_linked_identity\"));");
 	}
@@ -277,10 +280,10 @@ public class TelegramFeatureFlagsDefaultsTest {
 	}
 	@Test
 	public void testPostSignInTelegramSetupEntrypointCanAutoOpenPlaceholder() throws IOException {
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
-				"static final String EXTRA_OPEN_TELEGRAM_SETUP = \"openTelegramSetup\";");
-		assertFileContains("src/main/java/org/briarproject/briar/android/settings/SettingsActivity.java",
-				"boolean consumeOpenTelegramSetup() {\n\t\tboolean openTelegramSetup = getIntent().getBooleanExtra(\n\t\t\t\tEXTRA_OPEN_TELEGRAM_SETUP, false);\n\t\tgetIntent().removeExtra(EXTRA_OPEN_TELEGRAM_SETUP);\n\t\treturn openTelegramSetup;\n\t}");
+		assertFileContains("src/main/kotlin/org/briarproject/briar/android/settings/SettingsActivity.kt",
+				"const val EXTRA_OPEN_TELEGRAM_SETUP = \"openTelegramSetup\"");
+		assertFileContains("src/main/kotlin/org/briarproject/briar/android/settings/SettingsActivity.kt",
+				"fun consumeOpenTelegramSetup(): Boolean {\n\t\tval openTelegramSetup = intent.getBooleanExtra(\n\t\t\t\tEXTRA_OPEN_TELEGRAM_SETUP, false\n\t\t)\n\t\tintent.removeExtra(EXTRA_OPEN_TELEGRAM_SETUP)\n\t\treturn openTelegramSetup\n\t}");
 		assertBriarActivityContainsAll(
 				"i.putExtra(SettingsActivity.EXTRA_OPEN_TELEGRAM_SETUP, true);");
 		assertConnectionsFragmentContainsAll(
