@@ -107,7 +107,7 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"actionBar.setSubtitle(null);");
 	}
 	@Test public void testTelegramIdentityConsumersSurfaceOutsideSettings() throws IOException {
-		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/introduction/IntroductionActivity.java");
+		assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/TransportsActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/navdrawer/NavDrawerActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/hotspot/HotspotActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/PendingContactListActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/remote/AddContactActivity.java"); assertTelegramSubtitleConsumer("src/main/java/org/briarproject/briar/android/contact/add/nearby/AddNearbyContactActivity.java"); assertTelegramSubtitleConsumer("src/main/kotlin/org/briarproject/briar/android/introduction/IntroductionActivity.kt");
 	}
 	@Test public void testPasswordFragmentExposesTelegramLoginPlaceholder() throws IOException {
 		assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/StartupViewModel.java",
@@ -319,7 +319,15 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertTrue("Expected file to be absent: " + moduleRelativePath, !Files.exists(direct) && !Files.exists(nested));
 	}
 	private static void assertFileContainsAll(String moduleRelativePath, String... expectedTexts) throws IOException { for (String expectedText : expectedTexts) assertFileContains(moduleRelativePath, expectedText); }
-	private static void assertTelegramSubtitleConsumer(String moduleRelativePath) throws IOException { assertFileContains(moduleRelativePath, "protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {"); assertFileContains(moduleRelativePath, "showTelegramLinkedIdentitySubtitle(linkedIdentity);"); }
+	private static void assertTelegramSubtitleConsumer(String moduleRelativePath) throws IOException {
+		String contents = new String(Files.readAllBytes(resolveModulePath(moduleRelativePath)), StandardCharsets.UTF_8);
+		boolean hasJavaOverride = contents.contains("protected void onTelegramLinkedIdentityAvailable(\n\t\t\t@Nullable String linkedIdentity) {");
+		boolean hasKotlinOverride = contents.contains("override fun onTelegramLinkedIdentityAvailable(");
+		assertTrue("Expected Telegram subtitle override in " + moduleRelativePath,
+				hasJavaOverride || hasKotlinOverride);
+		assertTrue("Expected Telegram subtitle consumer body in " + moduleRelativePath,
+				contents.contains("showTelegramLinkedIdentitySubtitle(linkedIdentity)"));
+	}
 	private static void assertBriarActivityContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/activity/BriarActivity.java", expectedTexts); }
 	private static void assertConnectionsFragmentContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/settings/ConnectionsFragment.java", expectedTexts); }
 	private static void assertStartupActivityContainsAll(String... expectedTexts) throws IOException { assertFileContainsAll("src/main/java/org/briarproject/briar/android/login/StartupActivity.java", expectedTexts); }
