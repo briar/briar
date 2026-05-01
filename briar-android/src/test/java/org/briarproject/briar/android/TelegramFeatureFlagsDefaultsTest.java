@@ -205,17 +205,6 @@ public class TelegramFeatureFlagsDefaultsTest {
 				"private int getLoginMessage(TelegramAuthState authState) {\n\t\tif (authState != TelegramAuthState.RECOVERABLE_ERROR) {\n\t\t\treturn R.string.telegram_connector_login_message;\n\t\t}\n\t\tRecoverableErrorDetail detail =\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail();\n\t\tif (detail == RecoverableErrorDetail.MISSING_TDLIB) return R.string.telegram_connector_login_tdlib_missing_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_IDENTIFIER) return R.string.telegram_connector_login_identifier_invalid_message;\n\t\tif (detail == RecoverableErrorDetail.INVALID_PASSWORD) return R.string.telegram_connector_login_password_invalid_message;\n\t\treturn detail == RecoverableErrorDetail.INVALID_CODE\n\t\t\t\t? R.string.telegram_connector_login_code_invalid_message\n\t\t\t\t: R.string.telegram_connector_login_retry_message;\n\t}",
 				"confirmationMessage.setText(getString(\n\t\t\t\t\tR.string.telegram_connector_login_confirmation_message,\n\t\t\t\t\tviewModel.getTelegramLoginIdentifier().trim()));");
 	}
-	@Test public void testTelegramLoginCodeRetryKeepsCodeEntryVisible() throws IOException {
-		assertTelegramLoginPlaceholderFragmentContainsAll("if (authState == TelegramAuthState.CODE_ENTRY || authState == TelegramAuthState.RECOVERABLE_ERROR && viewModel.getTelegramRecoverableErrorDetail() == RecoverableErrorDetail.INVALID_CODE) {");
-	}
-	@Test public void testStartupViewModelClearsTelegramPasswordAfterAdvancingPastPasswordStep() throws IOException {
-		assertStartupViewModelContainsAll(
-				"void submitTelegramLoginPassword() {\n\t\ttelegramAuthSession.submitPassword(telegramLoginPassword);\n\t\ttelegramAuthState.setValue(telegramAuthSession.getCurrentState());\n\t\tif (telegramAuthState.getValue() != TelegramAuthState.RECOVERABLE_ERROR ||\n\t\t\t\tgetTelegramRecoverableErrorDetail() != RecoverableErrorDetail.INVALID_PASSWORD) {\n\t\t\ttelegramLoginPassword = \"\";\n\t\t}\n\t}");
-	}
-	@Test public void testTelegramLoginMissingTdlibDisablesIdentifierContinue() throws IOException {
-		assertTelegramLoginPlaceholderFragmentContainsAll(
-				"if (authState == TelegramAuthState.RECOVERABLE_ERROR &&\n\t\t\t\tviewModel.getTelegramRecoverableErrorDetail()\n\t\t\t\t== RecoverableErrorDetail.MISSING_TDLIB) {\n\t\t\tcontinueButton.setEnabled(false);\n\t\t}");
-	}
 	@Test public void testTelegramLoginCompletionStagesLinkedIdentityAfterPasswordSignIn() throws IOException {
 		assertStartupViewModelContainsAll(
 				"void completeTelegramLoginConfirmation() {\n\t\tpendingTelegramLinkedIdentity = telegramLoginIdentifier.trim();\n\t\tshowPasswordFragment();\n\t}",

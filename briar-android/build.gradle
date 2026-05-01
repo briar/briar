@@ -156,6 +156,17 @@ dependencies {
 	implementation 'com.google.android.material:material:1.9.0'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
+	// Compose support for modern UI
+	def composeBomVersion = '2024.02.00'
+	implementation platform("androidx.compose:compose-bom:$composeBomVersion")
+	implementation 'androidx.compose.ui:ui'
+	implementation 'androidx.compose.material3:material3'
+	implementation 'androidx.compose.material:material-icons-extended'
+	implementation 'androidx.compose.runtime:runtime-livedata'
+	implementation 'androidx.compose.foundation:foundation'
+	implementation 'androidx.activity:activity-compose:1.8.2'
+	implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
+
 	// force kotlin standard lib to latest version to prevent jetifier issues
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
