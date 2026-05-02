@@ -6,6 +6,7 @@ import org.drinkless.tdlib.Client;
 import org.junit.After;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +34,23 @@ public class StubTelegramTdlibLoginClientTest {
 		assertEquals(Arrays.asList("SetTdlibParameters",
 				"SetAuthenticationPhoneNumber"), Client.getSentRequestNames());
 		assertEquals("+123456789", Client.getLastPhoneNumber());
+
+		client.close();
+	}
+
+	@Test
+	public void testSubmitIdentifierUsesConfiguredWritableTdlibDirectories() {
+		File tdlibDir = new File("build/test-tdlib-dir");
+		StubTelegramTdlibLoginClient client =
+				new StubTelegramTdlibLoginClient(tdlibDir);
+
+		assertEquals(TelegramAuthState.IDENTIFIER_ENTRY, client.start());
+		assertEquals(TelegramAuthState.CODE_ENTRY,
+				client.submitIdentifier("+123456789"));
+		assertEquals(new File(tdlibDir, "database").getPath(),
+				Client.getLastDatabaseDirectory());
+		assertEquals(new File(tdlibDir, "files").getPath(),
+				Client.getLastFilesDirectory());
 
 		client.close();
 	}

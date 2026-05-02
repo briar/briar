@@ -18,6 +18,8 @@ public class Client {
 			new ArrayList<>();
 	private static long authorizationUpdateDelayMs = 0L;
 	private static String lastPhoneNumber = "";
+	private static String lastDatabaseDirectory = "";
+	private static String lastFilesDirectory = "";
 
 	private final ResultHandler updateHandler;
 
@@ -35,6 +37,10 @@ public class Client {
 	public void send(TdApi.Function request, ResultHandler resultHandler) {
 		sentRequestNames.add(request.getClass().getSimpleName());
 		if (request instanceof TdApi.SetTdlibParameters) {
+			TdApi.SetTdlibParameters parameters =
+					(TdApi.SetTdlibParameters) request;
+			lastDatabaseDirectory = parameters.databaseDirectory;
+			lastFilesDirectory = parameters.filesDirectory;
 			if (resultHandler != null) resultHandler.onResult(new TdApi.Ok());
 			emitAuthorizationState(new TdApi.AuthorizationStateWaitPhoneNumber());
 			return;
@@ -103,6 +109,8 @@ public class Client {
 		authorizationUpdateDelaySequenceMs.clear();
 		authorizationUpdateDelayMs = 0L;
 		lastPhoneNumber = "";
+		lastDatabaseDirectory = "";
+		lastFilesDirectory = "";
 	}
 
 	public static void setAuthorizationUpdateDelayMs(long delayMs) {
@@ -120,6 +128,14 @@ public class Client {
 
 	public static String getLastPhoneNumber() {
 		return lastPhoneNumber;
+	}
+
+	public static String getLastDatabaseDirectory() {
+		return lastDatabaseDirectory;
+	}
+
+	public static String getLastFilesDirectory() {
+		return lastFilesDirectory;
 	}
 
 	private void emitAuthorizationState(Object authorizationState) {

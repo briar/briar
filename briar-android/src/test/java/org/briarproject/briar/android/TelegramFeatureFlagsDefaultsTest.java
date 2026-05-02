@@ -41,12 +41,12 @@ public class TelegramFeatureFlagsDefaultsTest {
 		assertFileContains("../briar-api/src/main/kotlin/org/briarproject/briar/api/telegram/TelegramAuthSession.kt", "interface TelegramAuthSession {\n\tenum class RecoverableErrorDetail {\n\t\tNONE,\n\t\tMISSING_TDLIB,\n\t\tINVALID_IDENTIFIER,\n\t\tINVALID_CODE,\n\t\tINVALID_PASSWORD\n\t}\n\n\tfun getCurrentState(): TelegramAuthState\n\tfun getRecoverableErrorDetail(): RecoverableErrorDetail\n\tfun start()\n\tfun submitIdentifier(identifier: String)\n\tfun submitCode(code: String)\n\tfun submitPassword(password: String)\n\tfun close()\n}");
 		assertFileMissing("../briar-api/src/main/java/org/briarproject/briar/api/telegram/TelegramAuthSession.java");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
-				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags) {");
+				"TelegramAuthSession provideTelegramAuthSession(FeatureFlags featureFlags,\n\t\t\tDatabaseConfig databaseConfig) {");
 		assertFileContains("../briar-core/src/main/kotlin/org/briarproject/briar/telegram/TelegramAuthSessionImpl.kt",
 				"class TelegramAuthSessionImpl(");
 		assertFileMissing("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramAuthSessionImpl.java");
 		assertFileContains("../briar-core/src/main/java/org/briarproject/briar/telegram/TelegramModule.java",
-				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new TelegramAuthSessionImpl(\n\t\t\t\t\tnew StubTelegramTdlibLoginClient());\n\t\t}\n\t\treturn new TelegramAuthSessionImpl(new NoOpTelegramTdlibLoginClient());");
+				"if (featureFlags.shouldEnableTelegramConnector()) {\n\t\t\treturn new TelegramAuthSessionImpl(\n\t\t\t\t\tnew StubTelegramTdlibLoginClient(new File(\n\t\t\t\t\t\t\tdatabaseConfig.getDatabaseDirectory(), \"tdlib\")));\n\t\t}\n\t\treturn new TelegramAuthSessionImpl(new NoOpTelegramTdlibLoginClient());");
 	}
 	@Test public void testTelegramAuthSessionUsesHarborOwnedTdlibFacade() throws IOException {
 		assertFileContains("../briar-core/build.gradle", "apply plugin: 'org.jetbrains.kotlin.jvm'");

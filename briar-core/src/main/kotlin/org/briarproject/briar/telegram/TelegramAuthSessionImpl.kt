@@ -3,6 +3,7 @@ package org.briarproject.briar.telegram
 import org.briarproject.briar.api.telegram.TelegramAuthSession
 import org.briarproject.briar.api.telegram.TelegramAuthSession.RecoverableErrorDetail
 import org.briarproject.briar.api.telegram.TelegramAuthState
+import java.io.File
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.concurrent.CountDownLatch
@@ -59,7 +60,9 @@ class NoOpTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 	override fun close(): TelegramAuthState = TelegramAuthState.CLOSED
 }
 
-class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
+class StubTelegramTdlibLoginClient @JvmOverloads constructor(
+	private val tdlibDirectory: File = File("harbor-telegram"),
+) : TelegramTdlibLoginClient {
 
 	private companion object {
 		private const val AUTHORIZATION_UPDATE_TIMEOUT_MS = 1_000L
@@ -81,7 +84,7 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 
 	override fun start(): TelegramAuthState {
 		closeTdlibClient()
-		if (StubTelegramTdlibLoginClient::class.java.getResource("/org/drinkless/tdlib/Client.class") == null) {
+		if (!tdlibClientClassExists()) {
 			return recoverableError(RecoverableErrorDetail.MISSING_TDLIB)
 		}
 		return mapAuthorizationStateClassName(awaitAuthorizationStateClassName(true))
@@ -255,12 +258,16 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 
 	@Throws(ReflectiveOperationException::class)
 	private fun createSetTdlibParametersRequest(): Any {
+		val databaseDirectory = File(tdlibDirectory, "database")
+		val filesDirectory = File(tdlibDirectory, "files")
+		databaseDirectory.mkdirs()
+		filesDirectory.mkdirs()
 		val request = Class.forName("org.drinkless.tdlib.TdApi\$SetTdlibParameters")
 				.getConstructor()
 				.newInstance()
 		setFieldIfPresent(request, "useTestDc", false)
-		setFieldIfPresent(request, "databaseDirectory", "harbor-telegram")
-		setFieldIfPresent(request, "filesDirectory", "harbor-telegram")
+		setFieldIfPresent(request, "databaseDirectory", databaseDirectory.path)
+		setFieldIfPresent(request, "filesDirectory", filesDirectory.path)
 		setFieldIfPresent(request, "databaseEncryptionKey", ByteArray(0))
 		setFieldIfPresent(request, "useFileDatabase", true)
 		setFieldIfPresent(request, "useChatInfoDatabase", true)
@@ -401,4 +408,19 @@ class StubTelegramTdlibLoginClient : TelegramTdlibLoginClient {
 	}
 
 	private fun hasText(value: String): Boolean = value.trim().isNotEmpty()
+
+	private fun tdlibClientClassExists(): Boolean {
+		return try {
+			Class.forName(
+					"org.drinkless.tdlib.Client",
+					false,
+					StubTelegramTdlibLoginClient::class.java.classLoader,
+			)
+			true
+		} catch (_: ClassNotFoundException) {
+			false
+		} catch (_: LinkageError) {
+			false
+		}
+	}
 }

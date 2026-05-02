@@ -6,5 +6,5 @@ package org.briarproject.briar.android.compose
  */
 @Suppress("unused")
 object ComposeProbe {
-	val ui: String = androidx.compose.ui.platform.LocalContext.current.applicationInfo.sourceDir
+	val ui: String = androidx.compose.ui.Modifier.toString()
 }
