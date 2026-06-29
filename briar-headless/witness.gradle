@@ -45,6 +45,9 @@ dependencyVerification {
 		'org.briarproject:null-safety:0.1:null-safety-0.1.jar:161760de5e838cb982bafa973df820675d4397098e9a91637a36a306d43ba011',
 		'org.briarproject:onionwrapper-core:0.1.6:onionwrapper-core-0.1.6.jar:11cee7351e477b64ee790225cc720f489afc82609800ee9cb6c10d4181cbe76f',
 		'org.briarproject:onionwrapper-java:0.1.6:onionwrapper-java-0.1.6.jar:17d658a213b9c81c305a41bae380dad015561fe2d1310fac0413c415a81e3e2d',
+		'org.briarproject:tor-linux:0.4.9.11:tor-linux-0.4.9.11.jar:5292b5ade392971c826e3cfb369e6df34bb442a37415e549f85cf9b80772574c',
+		'org.briarproject:tor-macos:0.4.9.11:tor-macos-0.4.9.11.jar:4c79171430ba0d8a798e22e94f59ab0b43b119b9970435b44f16704dae755e95',
+		'org.briarproject:tor-windows:0.4.9.11:tor-windows-0.4.9.11.jar:c94690f55b06e6f9ec0f90d48a7bd719f7f28390c07811aeb2237f068e42eaff',
 		'org.checkerframework:checker-compat-qual:2.5.5:checker-compat-qual-2.5.5.jar:11d134b245e9cacc474514d2d66b5b8618f8039a1465cdc55bbc0b34e0008b7a',
 		'org.checkerframework:checker-qual:3.41.0:checker-qual-3.41.0.jar:2f9f245bf68e4259d610894f2406dc1f6363dc639302bd566e8272e4f4541172',
 		'org.eclipse.jetty.websocket:websocket-api:9.4.20.v20190813:websocket-api-9.4.20.v20190813.jar:779a29060cc17bdeeeba147efc884ebff972cfff93dad2d37b11c93f95d4f67b',
@@ -98,8 +101,5 @@ dependencyVerification {
 		'org.slf4j:slf4j-api:1.7.30:slf4j-api-1.7.30.jar:cdba07964d1bb40a0761485c6b1e8c2f8fd9eb1d19c53928ac0d7f9510105c57',
 		'org.slf4j:slf4j-api:1.7.32:slf4j-api-1.7.32.jar:3624f8474c1af46d75f98bc097d7864a323c81b3808aa43689a6e1c601c027be',
 		'org.slf4j:slf4j-simple:1.7.30:slf4j-simple-1.7.30.jar:8b9279cbff6b9f88594efae3cf02039b6995030eec023ed43928748c41670fee',
-		'org:briarproject:tor-linux:tor-linux-0.4.9.11.jar:5292b5ade392971c826e3cfb369e6df34bb442a37415e549f85cf9b80772574c',
-		'org:briarproject:tor-macos:tor-macos-0.4.9.11.jar:4c79171430ba0d8a798e22e94f59ab0b43b119b9970435b44f16704dae755e95',
-		'org:briarproject:tor-windows:tor-windows-0.4.9.11.jar:c94690f55b06e6f9ec0f90d48a7bd719f7f28390c07811aeb2237f068e42eaff',
 	]
 }
