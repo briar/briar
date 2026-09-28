@@ -480,7 +480,8 @@
 			android:name="org.briarproject.briar.android.blog.RssFeedActivity"
 			android:exported="false"
 			android:label="@string/blogs_rss_feeds"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
+			android:windowSoftInputMode="adjustResize">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
