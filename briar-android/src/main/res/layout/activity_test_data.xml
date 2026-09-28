@@ -5,6 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:fillViewport="true"
+	android:fitsSystemWindows="true"
 	android:padding="@dimen/margin_medium"
 	tools:ignore="HardcodedText">
 
@@ -257,8 +258,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="15dp"
-			android:textSize="@dimen/text_size_tiny"
 			android:text="Zero values"
+			android:textSize="@dimen/text_size_tiny"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/seekBarPrivateGroupMessages"

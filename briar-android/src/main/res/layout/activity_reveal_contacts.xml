@@ -3,6 +3,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
 	android:orientation="vertical"
 	tools:context=".android.privategroup.reveal.RevealContactsActivity">
 
@@ -10,7 +11,8 @@
 		android:id="@+id/fragmentContainer"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
-		android:layout_weight="1" />
+		android:layout_weight="1"
+		android:paddingTop="?attr/actionBarSize" />
 
 	<Button
 		android:id="@+id/revealButton"

@@ -5,6 +5,7 @@
 	android:id="@+id/feedList"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
 	app:emptyText="@string/blogs_rss_feeds_manage_empty_state"
 	app:scrollToEnd="false"
 	tools:listitem="@layout/list_item_rss_feed" />

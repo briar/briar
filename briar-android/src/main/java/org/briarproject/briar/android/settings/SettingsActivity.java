@@ -43,21 +43,24 @@ public class SettingsActivity extends BriarActivity
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 
+		setContentView(R.layout.activity_settings);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		fragmentManager.beginTransaction()
+				.replace(R.id.fragmentContainer, new SettingsFragment(),
+						"init")
+				.commit();
+
 		Intent i = getIntent();
 		Bundle extras = i.getExtras();
 		if (bundle == null && extras != null &&
 				extras.getBoolean(EXTRA_THEME_CHANGE, false)) {
 			// show display fragment after theme change
-			FragmentManager fragmentManager = getSupportFragmentManager();
 			showNextFragment(fragmentManager, new DisplayFragment());
 		} else if (bundle == null &&
 				ACTION_MANAGE_NETWORK_USAGE.equals(i.getAction())) {
 			// show connection if coming from network settings
-			FragmentManager fragmentManager = getSupportFragmentManager();
 			showNextFragment(fragmentManager, new ConnectionsFragment());
 		}
-
-		setContentView(R.layout.activity_settings);
 	}
 
 	@Override

@@ -4,6 +4,7 @@
 	android:id="@+id/grid"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:fitsSystemWindows="true"
 	android:numColumns="1"
 	android:padding="6dp"
 	android:verticalSpacing="12dp"
