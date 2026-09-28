@@ -4,7 +4,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/linearLayout"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:paddingTop="?attr/actionBarSize">
 
 	<androidx.appcompat.widget.AppCompatImageView
 		android:id="@+id/infoView"
