@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.account;
 
-import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -23,6 +22,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -48,6 +48,14 @@ public class UnlockActivity extends BaseActivity {
 
 	private boolean keyguardShown = false;
 
+	private final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(true) {
+				@Override
+				public void handleOnBackPressed() {
+					moveTaskToBack(true);
+				}
+			};
+
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
@@ -64,6 +72,8 @@ public class UnlockActivity extends BaseActivity {
 			findViewById(R.id.image).setVisibility(INVISIBLE);
 		}
 		keyguardShown = state != null && state.getBoolean(KEYGUARD_SHOWN);
+
+		getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 	}
 
 	@Override
@@ -111,12 +121,6 @@ public class UnlockActivity extends BaseActivity {
 		} else {
 			requestKeyguardUnlock();
 		}
-	}
-
-	@Override
-	@SuppressLint("MissingSuperCall")
-	public void onBackPressed() {
-		moveTaskToBack(true);
 	}
 
 	@RequiresApi(api = 28)
