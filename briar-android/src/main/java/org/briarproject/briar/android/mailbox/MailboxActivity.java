@@ -32,6 +32,7 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -55,6 +56,17 @@ public class MailboxActivity extends BriarActivity {
 	private MailboxViewModel viewModel;
 	private ProgressBar progressBar;
 
+	// only used in Pairing state, otherwise disabled
+	private final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(false) {
+				@Override
+				public void handleOnBackPressed() {
+					// don't go back in the flow if we are already pairing
+					// with the mailbox. We provide a try-again button instead.
+					supportFinishAfterTransition();
+				}
+			};
+
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
@@ -74,23 +86,33 @@ public class MailboxActivity extends BriarActivity {
 			progressBar.setVisibility(VISIBLE);
 		}
 
+		getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
+
 		viewModel.getPairingState().observeEvent(this, state -> {
 			if (state instanceof NotSetup) {
+				onBackPressedCallback.setEnabled(false);
 				onNotSetup();
 			} else if (state instanceof ShowDownload) {
+				onBackPressedCallback.setEnabled(false);
 				onShowDownload();
 			} else if (state instanceof ScanningQrCode) {
+				onBackPressedCallback.setEnabled(false);
 				onScanningQrCode();
 			} else if (state instanceof Pairing) {
+				onBackPressedCallback.setEnabled(true);
 				MailboxPairingState s = ((Pairing) state).pairingState;
 				onMailboxPairingStateChanged(s);
 			} else if (state instanceof OfflineWhenPairing) {
+				onBackPressedCallback.setEnabled(false);
 				onOffline();
 			} else if (state instanceof CameraError) {
+				onBackPressedCallback.setEnabled(false);
 				onCameraError();
 			} else if (state instanceof IsPaired) {
+				onBackPressedCallback.setEnabled(false);
 				onIsPaired(((IsPaired) state).isOnline);
 			} else if (state instanceof WasUnpaired) {
+				onBackPressedCallback.setEnabled(false);
 				WasUnpaired s = (WasUnpaired) state;
 				onUnPaired(s.tellUserToWipeMailbox);
 			} else {
@@ -117,18 +139,6 @@ public class MailboxActivity extends BriarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onBackPressed() {
-		MailboxState s = viewModel.getPairingState().getLastValue();
-		if (s instanceof Pairing) {
-			// don't go back in the flow if we are already pairing
-			// with the mailbox. We provide a try-again button instead.
-			supportFinishAfterTransition();
-		} else {
-			super.onBackPressed();
-		}
 	}
 
 	private void onNotSetup() {

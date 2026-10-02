@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.reporting;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +19,7 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
@@ -45,6 +45,14 @@ public class CrashReportActivity extends BaseActivity
 	ViewModelProvider.Factory viewModelFactory;
 
 	private ReportViewModel viewModel;
+
+	private final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(true) {
+				@Override
+				public void handleOnBackPressed() {
+					exit();
+				}
+			};
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -79,18 +87,15 @@ public class CrashReportActivity extends BaseActivity
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
+		getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
+		onBackPressedCallback.setEnabled(!viewModel.isFeedback());
+
 		if (savedInstanceState == null) displayFragment(viewModel.isFeedback());
 	}
 
 	@Override
 	public void runOnDbThread(Runnable runnable) {
 		throw new AssertionError("deprecated!!!");
-	}
-
-	@Override
-	@SuppressLint("MissingSuperCall")
-	public void onBackPressed() {
-		exit();
 	}
 
 	private void displayFragment(boolean showReportForm) {
