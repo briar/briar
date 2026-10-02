@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.login;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -16,6 +15,7 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -37,6 +37,17 @@ public class StartupActivity extends BaseActivity implements
 	ViewModelProvider.Factory viewModelFactory;
 
 	private StartupViewModel viewModel;
+
+	private final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(true) {
+				@Override
+				public void handleOnBackPressed() {
+					// Move task and activity to the background instead of showing another
+					// password prompt.
+					// onActivityResult() won't be called in BriarActivity
+					moveTaskToBack(true);
+				}
+			};
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -66,21 +77,14 @@ public class StartupActivity extends BaseActivity implements
 			if (deleted) onAccountDeleted();
 		});
 		viewModel.getState().observe(this, this::onStateChanged);
+
+		getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 		viewModel.clearSignInNotification();
-	}
-
-	@Override
-	@SuppressLint("MissingSuperCall")
-	public void onBackPressed() {
-		// Move task and activity to the background instead of showing another
-		// password prompt.
-		// onActivityResult() won't be called in BriarActivity
-		moveTaskToBack(true);
 	}
 
 	private void onStateChanged(State state) {

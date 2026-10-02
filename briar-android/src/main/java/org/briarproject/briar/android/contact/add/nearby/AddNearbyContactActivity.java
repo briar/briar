@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -56,6 +57,19 @@ public class AddNearbyContactActivity extends BriarActivity
 	private final ActivityResultLauncher<Integer> bluetoothLauncher =
 			registerForActivityResult(new RequestBluetoothDiscoverable(),
 					this::onBluetoothDiscoverableResult);
+	// only used in error state, otherwise disabled
+	private final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(false) {
+				@Override
+				public void handleOnBackPressed() {
+					// Re-create this activity when going back in failed state.
+					// This will also re-create the ViewModel, so we start fresh.
+					Intent i = new Intent(AddNearbyContactActivity.this,
+							AddNearbyContactActivity.class);
+					i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(i);
+				}
+			};
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -83,6 +97,8 @@ public class AddNearbyContactActivity extends BriarActivity
 				.setTitle(R.string.add_contact_title);
 		viewModel.getState()
 				.observe(this, this::onAddContactStateChanged);
+
+		getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 	}
 
 	private void onBluetoothDiscoverableResult(boolean discoverable) {
@@ -102,19 +118,6 @@ public class AddNearbyContactActivity extends BriarActivity
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onBackPressed() {
-		if (viewModel.getState().getValue() instanceof Failed) {
-			// Re-create this activity when going back in failed state.
-			// This will also re-create the ViewModel, so we start fresh.
-			Intent i = new Intent(this, AddNearbyContactActivity.class);
-			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-		} else {
-			super.onBackPressed();
-		}
 	}
 
 	private void requestBluetoothDiscoverable() {
@@ -142,18 +145,24 @@ public class AddNearbyContactActivity extends BriarActivity
 
 	private void onAddContactStateChanged(@Nullable AddContactState state) {
 		if (state instanceof ContactExchangeFinished) {
+			onBackPressedCallback.setEnabled(false);
 			ContactExchangeResult result =
 					((ContactExchangeFinished) state).result;
 			onContactExchangeResult(result);
 		} else if (state instanceof WrongQrCodeType) {
+			onBackPressedCallback.setEnabled(false);
 			QrCodeType qrCodeType = ((WrongQrCodeType) state).qrCodeType;
 			if (qrCodeType == MAILBOX) onMailboxQrCodeScanned();
 			else onWrongQrCodeType();
 		} else if (state instanceof WrongQrCodeVersion) {
+			onBackPressedCallback.setEnabled(false);
 			boolean qrCodeTooOld = ((WrongQrCodeVersion) state).qrCodeTooOld;
 			onWrongQrCodeVersion(qrCodeTooOld);
 		} else if (state instanceof Failed) {
+			onBackPressedCallback.setEnabled(true);
 			showErrorFragment();
+		} else {
+			onBackPressedCallback.setEnabled(false);
 		}
 	}
 
@@ -206,5 +215,4 @@ public class AddNearbyContactActivity extends BriarActivity
 	private void showErrorFragment() {
 		showNextFragment(new AddNearbyContactErrorFragment());
 	}
-
 }
