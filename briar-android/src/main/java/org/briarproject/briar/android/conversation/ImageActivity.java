@@ -194,9 +194,9 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
-	public void onBackPressed() {
+	public void finish() {
 		showStatusBarBeforeFinishing();
-		super.onBackPressed();
+		super.finish();
 	}
 
 	private void onImageClicked(@Nullable Boolean clicked) {
