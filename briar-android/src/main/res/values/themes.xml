@@ -19,6 +19,8 @@
 		<item name="colorSurfaceDim">@color/md_theme_surfaceDim</item>
 		<item name="colorError">@color/md_theme_error</item>
 		<item name="android:statusBarColor">#000000</item>
+		<item name="android:windowLightStatusBar" tools:targetApi="23">@bool/isLight</item>
+		<item name="android:windowLightNavigationBar" tools:targetApi="27">@bool/isLight</item>
 
 		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
