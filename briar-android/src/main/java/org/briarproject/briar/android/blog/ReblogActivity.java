@@ -28,7 +28,8 @@ public class ReblogActivity extends BriarActivity implements
 		if (postId == null)
 			throw new IllegalArgumentException("No post message ID in intent");
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		if (savedInstanceState == null) {
 			ReblogFragment f = ReblogFragment

@@ -21,7 +21,6 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -53,12 +52,8 @@ public class PendingContactListActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.list);
-
-		ActionBar ab = getSupportActionBar();
-		if (ab != null) {
-			ab.setDisplayHomeAsUpEnabled(true);
-		}
+		setContentView(R.layout.list_toolbar);
+		setUpCustomToolbar(false);
 
 		viewModel.onCreate();
 		viewModel.getPendingContacts()

@@ -37,7 +37,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -88,13 +87,8 @@ public class TransportsActivity extends BriarActivity {
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-
 		setContentView(R.layout.activity_transports);
+		setUpCustomToolbar(false);
 
 		GridView grid = findViewById(R.id.grid);
 		initializeCards();

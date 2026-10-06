@@ -50,7 +50,8 @@ public class ConnectViaBluetoothActivity extends BriarActivity {
 		if (contactId == -1) throw new IllegalArgumentException("ContactId");
 		viewModel.setContactId(new ContactId(contactId));
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		viewModel.getState().observeEvent(this, this::onStateChanged);
 
