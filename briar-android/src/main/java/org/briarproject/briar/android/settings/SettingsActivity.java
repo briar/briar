@@ -11,7 +11,6 @@ import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
@@ -37,13 +36,9 @@ public class SettingsActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
-		setContentView(R.layout.activity_settings);
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		fragmentManager.beginTransaction()
 				.replace(R.id.fragmentContainer, new SettingsFragment(),
