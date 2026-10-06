@@ -15,7 +15,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.ACTION_SEND;
@@ -42,12 +41,8 @@ public class AddContactActivity extends BriarActivity implements
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
-		setContentView(R.layout.activity_fragment_container);
-
-		ActionBar ab = getSupportActionBar();
-		if (ab != null) {
-			ab.setDisplayHomeAsUpEnabled(true);
-		}
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		viewModel.onCreate();
 		viewModel.getRemoteLinkEntered().observeEvent(this, entered -> {

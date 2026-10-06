@@ -45,7 +45,8 @@ public class RssFeedActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		if (savedInstanceState == null) {
 			showInitialFragment(RssFeedManageFragment.newInstance());

@@ -14,8 +14,6 @@ import org.briarproject.briar.api.test.TestDataCreator;
 
 import javax.inject.Inject;
 
-import androidx.appcompat.app.ActionBar;
-
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
@@ -33,13 +31,9 @@ public class TestDataActivity extends BriarActivity {
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-
 		setContentView(R.layout.activity_test_data);
+		setUpCustomToolbar(false);
+
 		contactsTextView = findViewById(R.id.textViewContactsSb);
 		TextView messagesTextView = findViewById(R.id.textViewMessagesSb);
 		TextView avatarsTextView = findViewById(R.id.textViewAvatarsSb);
