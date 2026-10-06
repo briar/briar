@@ -5,6 +5,8 @@
 
 	<integer name="splashScreenDuration">500</integer>
 
+	<bool name="isLight">true</bool>
+
 	<declare-styleable name="BriarRecyclerView">
 		<attr name="scrollToEnd" format="boolean" />
 		<attr name="emptyImage" format="integer" />
