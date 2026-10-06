@@ -42,7 +42,8 @@ public abstract class InvitationActivity<I extends InvitationItem>
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.list);
+		setContentView(R.layout.list_toolbar);
+		setUpCustomToolbar(false);
 
 		adapter = getAdapter(this, this);
 		list = findViewById(R.id.list);

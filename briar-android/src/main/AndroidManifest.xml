@@ -87,7 +87,6 @@
 			android:label="@string/crash_report_title"
 			android:launchMode="singleInstance"
 			android:process=":briar_error_handler"
-			android:theme="@style/BriarTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
@@ -95,7 +94,6 @@
 			android:exported="false"
 			android:label="@string/feedback_title"
 			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity"
-			android:theme="@style/BriarTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -104,24 +102,20 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.ExpiredActivity"
-			android:exported="false"
-			android:label="@string/app_name" />
+			android:exported="false" />
 
 		<activity
 			android:name="org.briarproject.briar.android.login.StartupActivity"
-			android:exported="false"
-			android:theme="@style/BriarTheme.NoActionBar" />
+			android:exported="false" />
 
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
-			android:exported="false"
-			android:theme="@style/BriarTheme.NoActionBar" />
+			android:exported="false" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"
 			android:exported="true"
-			android:label="@string/app_name"
-			android:theme="@style/BriarTheme.NoActionBar">
+			android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
@@ -132,8 +126,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:exported="true"
-			android:launchMode="singleTask"
-			android:theme="@style/BriarTheme.NoActionBar">
+			android:launchMode="singleTask">
 			<intent-filter android:label="@string/add_contact_remotely_title_case">
 				<action android:name="android.intent.action.VIEW" />
 
@@ -154,7 +147,6 @@
 			android:exported="false"
 			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:theme="@style/BriarTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateUnchanged">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -187,7 +179,6 @@
 			android:exported="false"
 			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:theme="@style/BriarTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -245,6 +236,7 @@
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
 		</activity>
 
+		<!-- FIXME This activity is currently not being used at all -->
 		<activity
 			android:name="org.briarproject.briar.android.sharing.BlogInvitationActivity"
 			android:exported="false"
@@ -271,7 +263,6 @@
 			android:exported="false"
 			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:theme="@style/BriarTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
@@ -323,8 +314,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.blog.BlogActivity"
 			android:exported="false"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:theme="@style/BriarTheme.NoActionBar">
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
@@ -356,8 +346,7 @@
 			android:name="org.briarproject.briar.android.contact.add.nearby.AddNearbyContactActivity"
 			android:exported="false"
 			android:label="@string/add_contact_title"
-			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:theme="@style/BriarTheme.NoActionBar">
+			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity" />
@@ -466,14 +455,12 @@
 			android:name=".android.account.UnlockActivity"
 			android:exported="false"
 			android:label="@string/lock_unlock"
-			android:launchMode="singleTask"
-			android:theme="@style/BriarTheme.NoActionBar" />
+			android:launchMode="singleTask" />
 
 		<activity
 			android:name=".android.contact.add.remote.AddContactActivity"
 			android:exported="false"
 			android:label="@string/add_contact_remotely_title_case"
-			android:theme="@style/BriarTheme"
 			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
@@ -500,21 +487,18 @@
 		<activity
 			android:name=".android.contact.add.remote.PendingContactListActivity"
 			android:exported="false"
-			android:label="@string/pending_contact_requests"
-			android:theme="@style/BriarTheme" />
+			android:label="@string/pending_contact_requests" />
 
 		<activity
 			android:name=".android.hotspot.HotspotActivity"
 			android:exported="false"
-			android:label="@string/hotspot_title"
-			android:theme="@style/BriarTheme" />
+			android:label="@string/hotspot_title" />
 
 		<activity
 			android:name=".android.contact.connect.ConnectViaBluetoothActivity"
 			android:exported="false"
 			android:label="@string/connect_via_bluetooth_title"
-			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity"
-			android:theme="@style/BriarTheme">
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.conversation.ConversationActivity" />
@@ -524,8 +508,7 @@
 			android:name=".android.mailbox.MailboxActivity"
 			android:exported="false"
 			android:label="@string/mailbox_settings_title"
-			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity"
-			android:theme="@style/BriarTheme">
+			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.settings.SettingsActivity" />

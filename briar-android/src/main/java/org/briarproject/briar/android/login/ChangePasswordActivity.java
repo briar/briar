@@ -69,6 +69,8 @@ public class ChangePasswordActivity extends BriarActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_change_password);
 
+		setUpCustomToolbar(false);
+
 		currentPasswordEntryWrapper =
 				findViewById(R.id.current_password_entry_wrapper);
 		newPasswordEntryWrapper = findViewById(R.id.new_password_entry_wrapper);

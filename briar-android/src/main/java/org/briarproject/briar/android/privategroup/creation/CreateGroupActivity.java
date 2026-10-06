@@ -33,7 +33,8 @@ public class CreateGroupActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		if (bundle == null) {
 			showInitialFragment(new CreateGroupFragment());

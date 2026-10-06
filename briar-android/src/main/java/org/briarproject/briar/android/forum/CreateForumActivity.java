@@ -59,6 +59,7 @@ public class CreateForumActivity extends BriarActivity {
 		super.onCreate(state);
 
 		setContentView(R.layout.activity_create_forum);
+		setUpCustomToolbar(false);
 
 		nameEntryLayout = findViewById(R.id.createForumNameLayout);
 		nameEntry = findViewById(R.id.createForumNameEntry);

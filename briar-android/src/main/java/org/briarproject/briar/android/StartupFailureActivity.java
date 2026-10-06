@@ -13,6 +13,8 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
@@ -26,7 +28,15 @@ public class StartupFailureActivity extends BaseActivity implements
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+
+		Toolbar toolbar = findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayShowTitleEnabled(true);
+		}
+
 		handleIntent(getIntent());
 	}
 
