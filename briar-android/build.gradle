@@ -28,8 +28,8 @@ android {
 	defaultConfig {
 		minSdkVersion 21
 		targetSdkVersion 35
-		versionCode 10521
-		versionName "1.5.21"
+		versionCode 10522
+		versionName "1.5.22"
 		applicationId "org.briarproject.briar.android"
 		buildConfigField "String", "TorVersion", "\"$tor_version\""
 
