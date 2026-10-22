@@ -46,7 +46,7 @@ public class PermissionUtils {
 		}
 	}
 
-	private static boolean isPermissionGranted(Context ctx, String permission) {
+	public static boolean isPermissionGranted(Context ctx, String permission) {
 		return checkSelfPermission(ctx, permission) ==
 				PERMISSION_GRANTED;
 	}
