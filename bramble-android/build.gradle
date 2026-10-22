@@ -47,7 +47,7 @@ dependencies {
 
 	implementation project(':bramble-core')
 
-	implementation 'androidx.annotation:annotation:1.5.0'
+	implementation 'androidx.annotation:annotation:1.11.0'
 	implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
 
 	tor "org.briarproject:tor-android:$tor_version"

@@ -16,3 +16,7 @@
 -dontwarn junit.**
 
 -dontwarn org.briarproject.briar.android.**
+
+-dontwarn org.jmock.Mockery
+-dontwarn org.jmock.api.ThreadingPolicy
+-dontwarn org.jmock.lib.concurrent.Synchroniser

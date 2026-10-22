@@ -12,7 +12,7 @@ dependencies {
 	api 'javax.inject:javax.inject:1'
 	api "com.google.dagger:dagger:$dagger_version"
 
-	implementation "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
+	implementation "com.fasterxml.jackson.core:jackson-annotations:2.22"
 
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"
