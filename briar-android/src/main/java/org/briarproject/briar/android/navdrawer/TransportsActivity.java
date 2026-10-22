@@ -222,7 +222,8 @@ public class TransportsActivity extends BriarActivity {
 	private void onClicked(TransportId transportId, boolean enable) {
 		if (transportId.equals(BluetoothConstants.ID) && enable
 				&& SDK_INT >= 31 && !areBluetoothPermissionsGranted(this)) {
-			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT)) {
+			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT) &&
+					!isPermissionGranted(this, ACCESS_LOCAL_NETWORK)) {
 				showRationale(this, R.string.permission_bluetooth_title,
 						R.string.permission_bluetooth_body,
 						this::requestBtPermissions);
@@ -232,7 +233,8 @@ public class TransportsActivity extends BriarActivity {
 		} else if (transportId.equals(LanTcpConstants.ID) && enable
 				&& SDK_INT >= 37 &&
 				!isPermissionGranted(this, ACCESS_LOCAL_NETWORK)) {
-			if (shouldShowRequestPermissionRationale(ACCESS_LOCAL_NETWORK)) {
+			if (shouldShowRequestPermissionRationale(ACCESS_LOCAL_NETWORK) &&
+					!areBluetoothPermissionsGranted(this)) {
 				showRationale(this, R.string.permission_network_title,
 						R.string.permission_network_body,
 						this::requestWifiPermissions);
