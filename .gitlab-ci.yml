@@ -1,4 +1,4 @@
-image: briar/ci-image-android:latest
+image: briar/ci-image-android:trixie # TODO change to latest once merged
 
 stages:
   - test
@@ -7,7 +7,6 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
 workflow:
   # when to create a CI pipeline
