@@ -72,6 +72,18 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	protected final AtomicBoolean used = new AtomicBoolean(false);
 	protected final PluginState state = new PluginState();
 
+
+	/**
+	 * Override and return true, if the plugin is now allowed to access the
+	 * local network.
+	 * If this returns false, the plugin must be
+	 * {@link org.briarproject.bramble.api.plugin.Plugin.State#DISABLED}
+	 * in {@link #start()} and not attempt to access Bluetooth hardware.
+	 */
+	protected boolean isNetworkAccessible() {
+		return true;
+	}
+
 	/**
 	 * Returns zero or more socket addresses on which the plugin should listen,
 	 * in order of preference. At most one of the addresses will be bound.
@@ -139,6 +151,11 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		Settings settings = callback.getSettings();
+		// disable plugin, if conditions for enabling are not met
+		if (!isNetworkAccessible()) {
+			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
+			callback.mergeSettings(settings);
+		}
 		state.setStarted(
 				settings.getBoolean(PREF_PLUGIN_ENABLE, isEnabledByDefault()));
 		bind();
@@ -408,7 +425,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	private void onSettingsUpdated(Settings settings) {
 		boolean enabledByUser =
 				settings.getBoolean(PREF_PLUGIN_ENABLE, isEnabledByDefault());
-		List<ServerSocket> toClose = state.setEnabledByUser(enabledByUser);
+		boolean shouldEnable = enabledByUser && isNetworkAccessible();
+		List<ServerSocket> toClose = state.setEnabledByUser(shouldEnable);
 		State s = getState();
 		if (!toClose.isEmpty()) {
 			LOG.info("Disabled by user, closing server sockets");

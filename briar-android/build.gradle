@@ -16,18 +16,17 @@ def getStdout = { command, defaultValue ->
 }
 
 android {
-	compileSdkVersion 36
-	buildToolsVersion '36.1.0'
+	compileSdkVersion 37
+	buildToolsVersion '37.0.0'
 	packagingOptions {
 		jniLibs {
 			keepDebugSymbols += ['**/*.so']
 		}
 	}
 
-
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 36
+		targetSdkVersion 37
 		versionCode 10522
 		versionName "1.5.22"
 		applicationId "org.briarproject.briar.android"
@@ -46,16 +45,21 @@ android {
 	buildTypes {
 		debug {
 			applicationIdSuffix ".debug"
+			//noinspection NotShrinkingResources
 			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
+			//noinspection ProguardAndroidTxtUsage
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+			//noinspection ProguardAndroidTxtUsage
 			testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt', 'proguard-test.txt'
 		}
 		release {
+			//noinspection NotShrinkingResources
 			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
+			//noinspection ProguardAndroidTxtUsage because obfuscates stack traces
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
 	}
@@ -65,6 +69,7 @@ android {
 		screenshot {
 			dimension "version"
 			applicationIdSuffix ".screenshot" // = org.briarproject.briar.android.screenshot.debug
+			//noinspection ProguardAndroidTxtUsage
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt', 'proguard-test.txt'
 		}
 		official {
