@@ -42,6 +42,10 @@ android {
 		testInstrumentationRunnerArguments disableAnalytics: 'true'
 	}
 
+	buildFeatures {
+		buildConfig true
+	}
+
 	buildTypes {
 		debug {
 			applicationIdSuffix ".debug"
