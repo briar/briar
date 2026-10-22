@@ -17,8 +17,8 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
-import static android.os.Looper.getMainLooper;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -34,7 +34,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 21)
@@ -119,7 +118,7 @@ public class ChangePasswordActivityTest {
 		verify(viewModel, times(1)).changePassword(eq(curPass), eq(safePass));
 		// Return the result
 		result.postEvent(SUCCESS);
-		shadowOf(getMainLooper()).idle();
+		ShadowLooper.idleMainLooper();
 		assertTrue(changePasswordActivity.isFinishing());
 	}
 

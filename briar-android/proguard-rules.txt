@@ -29,6 +29,8 @@
 -dontwarn org.conscrypt.OpenSSLProvider
 -dontwarn org.conscrypt.Conscrypt
 
+-dontwarn sun.security.x509.X509Key
+
 # HTML sanitiser
 -keep class org.jsoup.safety.Whitelist
 
