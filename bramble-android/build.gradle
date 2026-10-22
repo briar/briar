@@ -3,8 +3,8 @@ apply plugin: 'witness'
 apply from: 'witness.gradle'
 
 android {
-	compileSdkVersion 36
-	buildToolsVersion '36.1.0'
+	compileSdkVersion 37
+	buildToolsVersion '37.0.0'
 	packagingOptions {
 		jniLibs {
 			keepDebugSymbols += ['**/*.so']
@@ -14,7 +14,7 @@ android {
 
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 36
+		targetSdkVersion 37
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
