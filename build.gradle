@@ -38,9 +38,8 @@ buildscript {
 		onionwrapper_version = '0.1.7'
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.13.2'
+		classpath 'com.android.tools.build:gradle:9.4.1'
 		classpath 'ru.vyarus:gradle-animalsniffer-plugin:2.0.1'
-		classpath files('libs/gradle-witness.jar')
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 	}
 }

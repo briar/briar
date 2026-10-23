@@ -11,9 +11,7 @@ plugins {
 	id 'idea'
 	id 'org.jetbrains.kotlin.jvm'
 	id 'org.jetbrains.kotlin.kapt'
-	id 'witness'
 }
-apply from: 'witness.gradle'
 
 configurations {
 	windows {
@@ -188,7 +186,7 @@ task macosJars {
 idea {
 	module {
 		sourceDirs += file('build/generated/source/kapt/main')
-		testSourceDirs += file('build/generated/source/kapt/test')
+		testSources.from(file('build/generated/source/kapt/test'))
 		generatedSourceDirs += file('build/generated/source/kapt/main')
 	}
 }
