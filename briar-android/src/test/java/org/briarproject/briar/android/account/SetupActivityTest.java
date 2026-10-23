@@ -24,7 +24,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
-@Config(sdk = 21)
+@Config(sdk = 23)
 public class SetupActivityTest {
 
 	@Rule
@@ -48,10 +48,10 @@ public class SetupActivityTest {
 		onView(withText(R.string.passwords_do_not_match)).check(doesNotExist());
 		onView(withId(R.id.next)).check(matches(isEnabled()));
 
-		// clicking the button shows progress bar, no doze because SDK_INT==21
+		// clicking the button shows the doze fragment, as SDK_INT >= 23
 		onView(withId(R.id.next)).perform(scrollTo());
 		onView(withId(R.id.next)).perform(click());
-		onView(withId(R.id.progress)).check(matches(isDisplayed()));
+		onView(withId(R.id.dozeView)).check(matches(isDisplayed()));
 	}
 
 	private void moveToSetPasswordFragment() {
