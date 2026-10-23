@@ -1,6 +1,8 @@
 apply plugin: 'java-library'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 apply plugin: 'idea'
 apply from: '../dagger.gradle'

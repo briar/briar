@@ -1,10 +1,10 @@
 apply plugin: 'java-library'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 apply plugin: 'ru.vyarus.animalsniffer'
-apply plugin: 'witness'
-apply from: 'witness.gradle'
 
 dependencies {
 	api 'org.briarproject:null-safety:0.1'

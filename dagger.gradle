@@ -8,7 +8,7 @@ idea {
 	module {
 		sourceDirs += compileJava.options.generatedSourceOutputDirectory.get().getAsFile()
 		generatedSourceDirs += compileJava.options.generatedSourceOutputDirectory.get().getAsFile()
-		testSourceDirs += compileTestJava.options.generatedSourceOutputDirectory.get().getAsFile()
+		testSources.from(compileTestJava.options.generatedSourceOutputDirectory.get().getAsFile())
 		generatedSourceDirs += compileTestJava.options.generatedSourceOutputDirectory.get().getAsFile()
 	}
 }

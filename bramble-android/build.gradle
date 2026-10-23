@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'witness'
-apply from: 'witness.gradle'
 
 android {
 	compileSdkVersion 37
@@ -11,10 +9,8 @@ android {
 		}
 	}
 
-
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 37
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -28,8 +24,11 @@ android {
 	namespace 'org.briarproject.bramble'
 	lint {
 		warning 'LintError', 'InvalidPackage', 'MissingPermission', 'InlinedApi', 'ObsoleteSdkInt', 'Override', 'NewApi', 'UnusedAttribute'
+		targetSdk 37
 	}
-
+	testOptions {
+		targetSdk 37
+	}
 }
 
 configurations {

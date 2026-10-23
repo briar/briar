@@ -1,5 +1,7 @@
 # Android defaults and rules from ../bramble-android/proguard-rules.txt are also applied
 
+# Optimizing obfuscates stacktraces which need more work to de-obfuscate
+-dontoptimize
 -dontobfuscate
 -keepattributes SourceFile, LineNumberTable, *Annotation*, Signature, InnerClasses, EnclosingMethod
 
