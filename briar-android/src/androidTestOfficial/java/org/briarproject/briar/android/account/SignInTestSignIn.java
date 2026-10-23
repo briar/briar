@@ -14,13 +14,13 @@ import org.junit.runner.RunWith;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.DrawerMatchers.isClosed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static org.briarproject.briar.android.ViewActions.performClick;
 import static org.briarproject.briar.android.ViewActions.waitFor;
 import static org.hamcrest.CoreMatchers.allOf;
 
@@ -47,7 +47,7 @@ public class SignInTestSignIn extends UiTest {
 				.perform(replaceText(PASSWORD));
 		onView(withId(R.id.btn_sign_in))
 				.check(matches(allOf(isDisplayed(), isEnabled())))
-				.perform(click());
+				.perform(performClick());
 
 		lifecycleManager.waitForStartup();
 		waitFor(NavDrawerActivity.class);

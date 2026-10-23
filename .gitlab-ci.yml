@@ -38,7 +38,7 @@ test:
     - git submodule update
     - ./gradlew -Djava.security.egd=file:/dev/urandom animalSnifferMain animalSnifferTest
     - ./gradlew -Djava.security.egd=file:/dev/urandom assembleOfficialDebug :briar-headless:linuxJars
-    - ./gradlew -Djava.security.egd=file:/dev/urandom compileOfficialDebugAndroidTestSources compileScreenshotDebugAndroidTestSources check
+    - ./gradlew -Djava.security.egd=file:/dev/urandom compileOfficialDebugTestAndroidTestSources compileScreenshotDebugTestAndroidTestSources check
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
