@@ -9,10 +9,12 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
 import org.junit.ClassRule;
+import org.junit.Rule;
 
 import javax.inject.Inject;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.rule.GrantPermissionRule;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
@@ -24,6 +26,11 @@ public abstract class UiTest {
 	@ClassRule
 	public static final ScreenshotOnFailureRule screenshotOnFailureRule =
 			new ScreenshotOnFailureRule();
+
+	// avoids the system permission dialog blocking the sign-in flow
+	@Rule
+	public final GrantPermissionRule notificationPermissionRule =
+			GrantPermissionRule.grant("android.permission.POST_NOTIFICATIONS");
 
 	protected final String USERNAME =
 			getApplicationContext().getString(R.string.screenshot_alice);
