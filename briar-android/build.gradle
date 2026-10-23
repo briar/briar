@@ -1,6 +1,6 @@
+import groovy.xml.XmlParser
+
 apply plugin: 'com.android.application'
-apply plugin: 'witness'
-apply from: 'witness.gradle'
 
 def getStdout = { command, defaultValue ->
 	def stdout = new ByteArrayOutputStream()
@@ -53,18 +53,15 @@ android {
 			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
-			//noinspection ProguardAndroidTxtUsage
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-			//noinspection ProguardAndroidTxtUsage
-			testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt', 'proguard-test.txt'
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
+			testProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt', 'proguard-test.txt'
 		}
 		release {
 			//noinspection NotShrinkingResources
 			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
-			//noinspection ProguardAndroidTxtUsage because obfuscates stack traces
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
 		}
 	}
 
@@ -73,16 +70,10 @@ android {
 		screenshot {
 			dimension "version"
 			applicationIdSuffix ".screenshot" // = org.briarproject.briar.android.screenshot.debug
-			//noinspection ProguardAndroidTxtUsage
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt', 'proguard-test.txt'
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt', 'proguard-test.txt'
 		}
 		official {
 			dimension "version"
-		}
-	}
-	variantFilter { variant ->
-		if (variant.flavors*.name.contains("screenshot") && variant.buildType.name == "release") {
-			setIgnore(true)
 		}
 	}
 
@@ -102,6 +93,14 @@ android {
 		warning 'MissingTranslation', 'MissingDefaultResource', 'ImpliedQuantity', 'ExtraTranslation', 'InvalidPackage'
 	}
 
+}
+
+androidComponents {
+	beforeVariants(selector().all()) { variant ->
+		if (variant.productFlavors*.second.contains("screenshot") && variant.buildType == "release") {
+			variant.enable = false
+		}
+	}
 }
 
 dependencies {
