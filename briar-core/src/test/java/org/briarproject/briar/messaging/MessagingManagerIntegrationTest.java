@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.blog.Blog;
+import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -29,6 +31,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -193,10 +196,10 @@ public class MessagingManagerIntegrationTest
 
 		// delete all messages on both sides (deletes all, because returns true)
 		assertTrue(db0.transactionWithResult(false,
-				txn -> messagingManager0.deleteAllMessages(txn, contactId))
+						txn -> messagingManager0.deleteAllMessages(txn, contactId))
 				.allDeleted());
 		assertTrue(db1.transactionWithResult(false,
-				txn -> messagingManager1.deleteAllMessages(txn, contactId))
+						txn -> messagingManager1.deleteAllMessages(txn, contactId))
 				.allDeleted());
 
 		// all messages are gone
@@ -221,10 +224,10 @@ public class MessagingManagerIntegrationTest
 		toDelete.add(m1.getMessage().getId());
 		toDelete.add(m2.getMessage().getId());
 		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete))
+						messagingManager0.deleteMessages(txn, contactId, toDelete))
 				.allDeleted());
 		assertTrue(db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete))
+						messagingManager1.deleteMessages(txn, contactId, toDelete))
 				.allDeleted());
 
 		// all messages except 1 are gone
@@ -241,7 +244,7 @@ public class MessagingManagerIntegrationTest
 		toDelete.clear();
 		toDelete.add(m0.getMessage().getId());
 		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete))
+						messagingManager0.deleteMessages(txn, contactId, toDelete))
 				.allDeleted());
 		assertEquals(0, getMessages(c0).size());
 		assertGroupCounts(c0, 0, 0);
@@ -285,10 +288,10 @@ public class MessagingManagerIntegrationTest
 
 		// delete message on both sides (deletes all, because returns true)
 		assertTrue(db0.transactionWithResult(false,
-				txn -> messagingManager0.deleteAllMessages(txn, contactId))
+						txn -> messagingManager0.deleteAllMessages(txn, contactId))
 				.allDeleted());
 		assertTrue(db1.transactionWithResult(false,
-				txn -> messagingManager1.deleteAllMessages(txn, contactId))
+						txn -> messagingManager1.deleteAllMessages(txn, contactId))
 				.allDeleted());
 
 		// attachment was deleted on both devices
@@ -307,9 +310,120 @@ public class MessagingManagerIntegrationTest
 	}
 
 	@Test
+	public void testAttachmentDeletionChecksGroupId() throws Exception {
+		// Post a message to 0's blog and sync the post to 1
+		Blog blog = blogFactory.createBlog(author0);
+		BlogPost post = blogPostFactory.createBlogPost(blog.getId(),
+				c0.getClock().currentTimeMillis(), null, author0,
+				getRandomString(42));
+		MessageId postId = post.getMessage().getId();
+		c0.getBlogManager().addLocalPost(post);
+		sync0To1(1, true);
+
+		// Send a message from 1 to 0, illegally claiming the blog post as its
+		// attachment
+		GroupId groupIdFrom1To0 =
+				messagingManager1.getConversationId(contactId0From1);
+		AttachmentHeader illegalAttachment = new AttachmentHeader(
+				groupIdFrom1To0, postId, "image/jpeg");
+		MessageId illegalMessageId = sendMessage(c1, c0, getRandomString(42),
+				singletonList(illegalAttachment), NO_AUTO_DELETE_TIMER, 1)
+				.getMessage().getId();
+
+		// Delete the illegal message from 0's DB
+		db0.transaction(false, txn ->
+				messagingManager0.deleteMessages(txn, contactId1From0,
+						singleton(illegalMessageId)));
+
+		// Message was deleted
+		try {
+			db0.transaction(true, txn ->
+					db0.getMessage(txn, illegalMessageId));
+			fail();
+		} catch (MessageDeletedException e) {
+			// expected
+		}
+
+		// Illegal "attachment" in another group was not deleted
+		db0.transaction(true, txn ->
+				db0.getMessage(txn, postId));
+	}
+
+	@Test
+	public void testAttachmentDeletionChecksMessageType() throws Exception {
+		// Send a message from 1 to 0
+		MessageId msgIdFrom1To0 = sendMessage(c1, c0, getRandomString(42))
+				.getMessage().getId();
+
+		// Send another message from 1 to 0, illegally claiming the first
+		// message as its attachment
+		GroupId groupIdFrom1To0 =
+				messagingManager1.getConversationId(contactId0From1);
+		AttachmentHeader illegalAttachment = new AttachmentHeader(
+				groupIdFrom1To0, msgIdFrom1To0, "image/jpeg");
+		MessageId illegalMessageId = sendMessage(c1, c0, getRandomString(42),
+				singletonList(illegalAttachment), NO_AUTO_DELETE_TIMER, 1)
+				.getMessage().getId();
+
+		// Delete the illegal message from 0's DB
+		db0.transaction(false, txn ->
+				messagingManager0.deleteMessages(txn, contactId1From0,
+						singleton(illegalMessageId)));
+
+		// Illegal message was deleted
+		try {
+			db0.transaction(true, txn ->
+					db0.getMessage(txn, illegalMessageId));
+			fail();
+		} catch (MessageDeletedException e) {
+			// expected
+		}
+
+		// Illegal "attachment" (actually first message) was not deleted
+		db0.transaction(true, txn ->
+				db0.getMessage(txn, msgIdFrom1To0));
+	}
+
+	@Test
+	public void testAttachmentDeletionChecksLocalVsRemote() throws Exception {
+		// Send a message from 0 to 1 with an attachment
+		AttachmentHeader h = addAttachment(c0);
+		MessageId attachmentIdFrom0To1 = h.getMessageId();
+		sendMessage(c0, c1, getRandomString(42), singletonList(h));
+
+		// Send a message from 1 to 0, illegally claiming the attachment from
+		// 0 to 1 as its attachment
+		GroupId groupIdFrom1To0 =
+				messagingManager1.getConversationId(contactId0From1);
+		AttachmentHeader illegalAttachment = new AttachmentHeader(
+				groupIdFrom1To0, attachmentIdFrom0To1, "image/jpeg");
+		MessageId illegalMessageId = sendMessage(c1, c0, getRandomString(42),
+				singletonList(illegalAttachment), NO_AUTO_DELETE_TIMER, 1)
+				.getMessage().getId();
+
+		// Delete the illegal message from 0's DB
+		db0.transaction(false, txn ->
+				messagingManager0.deleteMessages(txn, contactId1From0,
+						singleton(illegalMessageId)));
+
+		// Illegal message was deleted
+		try {
+			db0.transaction(true, txn ->
+					db0.getMessage(txn, illegalMessageId));
+			fail();
+		} catch (MessageDeletedException e) {
+			// expected
+		}
+
+		// Illegal attachment was not deleted
+		db0.transaction(true, txn ->
+				db0.getMessage(txn, attachmentIdFrom0To1));
+	}
+
+	@Test
 	public void testDeletingEmptySet() throws Exception {
 		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, emptySet()))
+						messagingManager0.deleteMessages(txn, contactId, emptySet()))
 				.allDeleted());
 	}
 
@@ -328,12 +442,20 @@ public class MessagingManagerIntegrationTest
 			BriarIntegrationTestComponent to, @Nullable String text,
 			List<AttachmentHeader> attachments, long autoDeleteTimer)
 			throws Exception {
+		return sendMessage(from, to, text, attachments, autoDeleteTimer,
+				1 + attachments.size());
+	}
+
+	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,
+			BriarIntegrationTestComponent to, @Nullable String text,
+			List<AttachmentHeader> attachments, long autoDeleteTimer,
+			int syncCount) throws Exception {
 		GroupId g = from.getMessagingManager().getConversationId(contactId);
 		PrivateMessage m = messageFactory.createPrivateMessage(g,
 				from.getClock().currentTimeMillis(), text, attachments,
 				autoDeleteTimer);
 		from.getMessagingManager().addLocalMessage(m);
-		syncMessage(from, to, contactId, 1 + attachments.size(), true);
+		syncMessage(from, to, contactId, syncCount, true);
 		return m;
 	}
 

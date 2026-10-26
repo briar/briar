@@ -394,7 +394,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public GroupId getConversationId(Transaction txn, ContactId c) throws DbException {
+	public GroupId getConversationId(Transaction txn, ContactId c)
+			throws DbException {
 		Contact contact = db.getContact(txn, c);
 		return getContactGroup(contact).getId();
 	}
@@ -471,7 +472,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public String getMessageText(Transaction txn, MessageId m) throws DbException {
+	public String getMessageText(Transaction txn, MessageId m)
+			throws DbException {
 		try {
 			BdfList body = clientHelper.getMessageAsList(txn, m);
 			if (body.size() == 1) return body.getString(0); // Legacy format
@@ -529,20 +531,48 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			BdfDictionary meta =
 					clientHelper.getMessageMetadataAsDictionary(txn, m);
 			Integer messageType = meta.getOptionalInt(MSG_KEY_MSG_TYPE);
+			boolean isLocal = meta.getBoolean(MSG_KEY_LOCAL);
 			if (messageType != null && messageType == PRIVATE_MESSAGE) {
 				for (AttachmentHeader h : parseAttachmentHeaders(g, meta)) {
-					try {
-						db.deleteMessage(txn, h.getMessageId());
-						db.deleteMessageMetadata(txn, h.getMessageId());
-					} catch (NoSuchMessageException e) {
-						// Continue
-					}
+					deleteAttachmentIfExists(txn, h, g, isLocal);
 				}
 			}
 			db.deleteMessage(txn, m);
 			db.deleteMessageMetadata(txn, m);
 		} catch (FormatException e) {
 			throw new DbException(e);
+		}
+	}
+
+	private void deleteAttachmentIfExists(Transaction txn, AttachmentHeader h,
+			GroupId g, boolean isLocal) throws DbException, FormatException {
+		try {
+			MessageId attachmentId = h.getMessageId();
+			// Check the group ID first so we don't throw FormatException if
+			// the metadata is formatted for a different client
+			GroupId attachmentGroupId = db.getGroupId(txn, attachmentId);
+			if (!attachmentGroupId.equals(g)) {
+				// Attachment ID points to a message in another group
+				return;
+			}
+			BdfDictionary attachmentMeta = clientHelper
+					.getMessageMetadataAsDictionary(txn, attachmentId);
+			Integer attachmentType =
+					attachmentMeta.getOptionalInt(MSG_KEY_MSG_TYPE);
+			if (attachmentType == null || attachmentType != ATTACHMENT) {
+				// Attachment ID doesn't point to an attachment
+				return;
+			}
+			boolean attachmentIsLocal =
+					attachmentMeta.getBoolean(MSG_KEY_LOCAL);
+			if (attachmentIsLocal != isLocal) {
+				// Attachment ID points to wrong party's attachment
+				return;
+			}
+			db.deleteMessage(txn, attachmentId);
+			db.deleteMessageMetadata(txn, attachmentId);
+		} catch (NoSuchMessageException e) {
+			// Acceptable
 		}
 	}
 
