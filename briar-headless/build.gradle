@@ -55,7 +55,7 @@ dependencies {
 	implementation 'com.github.ajalt:clikt:2.8.0'
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-	implementation "com.fasterxml.jackson.core:jackson-databind:2.22.4"
+	implementation "com.fasterxml.jackson.core:jackson-databind:2.13.4.2"
 	implementation "org.briarproject:onionwrapper-java:$onionwrapper_version"
 
 	kapt "com.google.dagger:dagger-compiler:$dagger_version"
