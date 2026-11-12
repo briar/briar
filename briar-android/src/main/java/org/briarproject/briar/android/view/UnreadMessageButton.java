@@ -66,6 +66,11 @@ public class UnreadMessageButton extends FrameLayout {
 		}
 	}
 
+	@Override
+	public void setOnClickListener(@Nullable OnClickListener l) {
+		fab.setOnClickListener(l);
+	}
+
 	public void setUnreadCount(int count) {
 		if (count == 0) {
 			fab.hide();
