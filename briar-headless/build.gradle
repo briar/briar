@@ -106,9 +106,8 @@ void jarFactory(Jar jarTask, os, architecture, configuration) {
 				]
 				for (String arch : architectures) {
 					if (arch != architecture) {
-						exclude arch + "/obfs4proxy"
+						exclude arch + "/lyrebird"
 						exclude arch + "/tor"
-						exclude arch + "/snowflake"
 						exclude arch + "/libevent-*.dylib"
 					}
 				}
