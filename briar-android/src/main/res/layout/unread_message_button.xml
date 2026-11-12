@@ -20,7 +20,7 @@
 		android:layout_marginEnd="5dp"
 		android:layout_marginRight="5dp"
 		android:background="@drawable/bubble"
-		android:elevation="7dp"
+		android:elevation="13dp"
 		android:gravity="center"
 		android:minWidth="@dimen/unread_bubble_size"
 		android:textColor="@color/briar_text_primary_inverse"
