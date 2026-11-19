@@ -88,6 +88,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.util.AndroidUtils.hasLocalNetworkPermission;
 import static org.briarproject.bramble.util.AndroidUtils.registerReceiver;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.ISO_8859_1;
@@ -248,6 +249,10 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	@UiThread
 	private boolean isWifiReady() {
 		if (wifiPlugin == null) return true; // Continue without wifi
+		if (!hasLocalNetworkPermission(getApplication())) {
+			// Continue without wifi
+			return true;
+		}
 		State state = wifiPlugin.getState();
 		// Wait for plugin to become enabled
 		return state == ACTIVE || state == INACTIVE;
@@ -278,6 +283,7 @@ class AddNearbyContactViewModel extends AndroidViewModel
 	private void enableWifiIfWeShould() {
 		if (hasEnabledWifi) return;
 		if (wifiPlugin == null) return;
+		if (!hasLocalNetworkPermission(getApplication())) return;
 		State state = wifiPlugin.getState();
 		if (state == STARTING_STOPPING || state == DISABLED) {
 			LOG.info("Enabling wifi plugin");
