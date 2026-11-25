@@ -65,6 +65,7 @@ abstract class SharingStatusActivity extends BriarActivity
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_sharing_status);
+		setUpCustomToolbar(false);
 
 		Intent i = getIntent();
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
