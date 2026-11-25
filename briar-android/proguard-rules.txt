@@ -33,9 +33,6 @@
 
 -dontwarn sun.security.x509.X509Key
 
-# HTML sanitiser
--keep class org.jsoup.safety.Whitelist
-
 # KeyboardAwareLinearLayout uses reflection on android.View
 -dontnote org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout
 
