@@ -138,7 +138,6 @@ public class AddNearbyContactActivity extends BriarActivity
 			BaseFragment f = AddNearbyContactFragment.newInstance();
 			fm.beginTransaction()
 					.replace(R.id.fragmentContainer, f, f.getUniqueTag())
-					.addToBackStack(f.getUniqueTag())
 					.commit();
 		}
 	}
