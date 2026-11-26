@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -44,14 +43,11 @@ import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORP
 import static java.util.Collections.sort;
 import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
-import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @NotNullByDefault
 class MailboxApiImpl implements MailboxApi {
-
-	private static final Logger LOG = getLogger(MailboxApiImpl.class.getName());
 
 	private static final MediaType JSON =
 			requireNonNull(MediaType.parse("application/json; charset=utf-8"));

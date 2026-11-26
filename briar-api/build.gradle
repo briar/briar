@@ -9,7 +9,7 @@ apply plugin: 'ru.vyarus.animalsniffer'
 dependencies {
 	implementation project(':bramble-api')
 
-	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
+	signature 'com.toasttab.android:gummy-bears-api-21:0.16.0:coreLib2@signature'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 

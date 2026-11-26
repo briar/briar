@@ -32,7 +32,7 @@ dependencies {
 
 	testAnnotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
-	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
+	signature 'com.toasttab.android:gummy-bears-api-21:0.16.0:coreLib2@signature'
 }
 
 // needed to make test output available to briar-headless
