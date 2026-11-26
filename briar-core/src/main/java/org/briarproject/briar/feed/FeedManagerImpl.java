@@ -40,6 +40,7 @@ import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.api.feed.RssProperties;
 import org.briarproject.nullsafety.NotNullByDefault;
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +64,6 @@ import javax.inject.Inject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import static java.util.Collections.singletonList;
 import static java.util.logging.Level.WARNING;
@@ -389,6 +389,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		return sf;
 	}
 
+	@IgnoreJRERequirement // try with resources
 	private InputStream getFeedInputStream(String url) throws IOException {
 		// Build Request
 		Request request = new Request.Builder()
@@ -397,10 +398,9 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 		// Execute Request
 		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
-		ResponseBody body = response.body();
-		if (body != null) return body.byteStream();
-		throw new IOException("Empty response body");
+		try (Response response = client.newCall(request).execute()) {
+			return response.body().byteStream();
+		}
 	}
 
 	private SyndFeed getSyndFeed(InputStream stream) throws IOException {
