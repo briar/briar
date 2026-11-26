@@ -115,8 +115,7 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"
-			android:exported="true"
-			android:label="@string/app_name">
+			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
@@ -146,7 +145,6 @@
 		<activity
 			android:name="org.briarproject.briar.android.conversation.ConversationActivity"
 			android:exported="false"
-			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:windowSoftInputMode="adjustResize|stateUnchanged">
 			<meta-data
@@ -178,7 +176,6 @@
 		<activity
 			android:name="org.briarproject.briar.android.privategroup.conversation.GroupActivity"
 			android:exported="false"
-			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
@@ -262,7 +259,6 @@
 		<activity
 			android:name="org.briarproject.briar.android.forum.ForumActivity"
 			android:exported="false"
-			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
