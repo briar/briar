@@ -44,6 +44,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.util.AndroidUtils.hasLocalNetworkPermission;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.NetworkUtils.getNetworkInterfaces;
@@ -66,6 +67,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	private final ConnectivityManager connectivityManager;
 	@Nullable
 	private final WifiManager wifiManager;
+	private final Application app;
 
 	private volatile SocketFactory socketFactory;
 
@@ -85,7 +87,13 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		connectivityManager = (ConnectivityManager)
 				requireNonNull(app.getSystemService(CONNECTIVITY_SERVICE));
 		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
+		this.app = app;
 		socketFactory = SocketFactory.getDefault();
+	}
+
+	@Override
+	protected boolean isNetworkAccessible() {
+		return hasLocalNetworkPermission(app);
 	}
 
 	@Override
@@ -93,6 +101,11 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		initialisePortProperty();
 		Settings settings = callback.getSettings();
+		// disable plugin, if conditions for enabling are not met
+		if (!isNetworkAccessible()) {
+			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
+			callback.mergeSettings(settings);
+		}
 		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE,
 				DEFAULT_PREF_PLUGIN_ENABLE));
 		updateConnectionStatus();

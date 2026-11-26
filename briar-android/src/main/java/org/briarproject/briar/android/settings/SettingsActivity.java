@@ -11,7 +11,6 @@ import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
@@ -37,27 +36,26 @@ public class SettingsActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		fragmentManager.beginTransaction()
+				.replace(R.id.fragmentContainer, new SettingsFragment(),
+						"init")
+				.commit();
 
 		Intent i = getIntent();
 		Bundle extras = i.getExtras();
 		if (bundle == null && extras != null &&
 				extras.getBoolean(EXTRA_THEME_CHANGE, false)) {
 			// show display fragment after theme change
-			FragmentManager fragmentManager = getSupportFragmentManager();
 			showNextFragment(fragmentManager, new DisplayFragment());
 		} else if (bundle == null &&
 				ACTION_MANAGE_NETWORK_USAGE.equals(i.getAction())) {
 			// show connection if coming from network settings
-			FragmentManager fragmentManager = getSupportFragmentManager();
 			showNextFragment(fragmentManager, new ConnectionsFragment());
 		}
-
-		setContentView(R.layout.activity_settings);
 	}
 
 	@Override

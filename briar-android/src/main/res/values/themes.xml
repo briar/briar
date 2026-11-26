@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-	<style name="BriarTheme" parent="Theme.Material3.DayNight">
+	<style name="BriarTheme" parent="Theme.Material3.DayNight.NoActionBar">
 		<item name="colorPrimary">@color/md_theme_primary</item>
 		<item name="colorOnPrimary">@color/md_theme_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/md_theme_primary</item>
@@ -19,6 +19,8 @@
 		<item name="colorSurfaceDim">@color/md_theme_surfaceDim</item>
 		<item name="colorError">@color/md_theme_error</item>
 		<item name="android:statusBarColor">#000000</item>
+		<item name="android:windowLightStatusBar" tools:targetApi="23">@bool/isLight</item>
+		<item name="android:windowLightNavigationBar" tools:targetApi="27">@bool/isLight</item>
 
 		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:textColorLink">@color/briar_text_link</item>
@@ -28,17 +30,11 @@
 		<item name="alertDialogTheme">@style/BriarDialogTheme.Neutral</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14</item>
 
+		<item name="android:fitsSystemWindows">true</item>
 		<item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
-		<item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
 	</style>
 
-	<style name="BriarTheme.NoActionBar" parent="BriarTheme">
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-		<item name="toolbarStyle">@style/BriarToolbar</item>
-	</style>
-
-	<style name="BriarTheme.ActionBarOverlay" parent="BriarTheme.NoActionBar">
+	<style name="BriarTheme.ActionBarOverlay" parent="BriarTheme">
 		<item name="android:windowActionBarOverlay">true</item>
 	</style>
 

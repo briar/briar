@@ -1,20 +1,16 @@
 apply plugin: 'com.android.library'
-apply plugin: 'witness'
-apply from: 'witness.gradle'
 
 android {
-	compileSdkVersion 35
-	buildToolsVersion '35.0.0'
+	compileSdkVersion 37
+	buildToolsVersion '37.0.0'
 	packagingOptions {
 		jniLibs {
 			keepDebugSymbols += ['**/*.so']
 		}
 	}
 
-
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 35
 		consumerProguardFiles 'proguard-rules.txt'
 
 		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -28,8 +24,11 @@ android {
 	namespace 'org.briarproject.bramble'
 	lint {
 		warning 'LintError', 'InvalidPackage', 'MissingPermission', 'InlinedApi', 'ObsoleteSdkInt', 'Override', 'NewApi', 'UnusedAttribute'
+		targetSdk 37
 	}
-
+	testOptions {
+		targetSdk 37
+	}
 }
 
 configurations {
@@ -47,7 +46,7 @@ dependencies {
 
 	implementation project(':bramble-core')
 
-	implementation 'androidx.annotation:annotation:1.5.0'
+	implementation 'androidx.annotation:annotation:1.11.0'
 	implementation "org.briarproject:onionwrapper-android:$onionwrapper_version"
 
 	tor "org.briarproject:tor-android:$tor_version"

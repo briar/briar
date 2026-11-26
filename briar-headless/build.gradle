@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
@@ -9,9 +11,7 @@ plugins {
 	id 'idea'
 	id 'org.jetbrains.kotlin.jvm'
 	id 'org.jetbrains.kotlin.kapt'
-	id 'witness'
 }
-apply from: 'witness.gradle'
 
 configurations {
 	windows {
@@ -26,10 +26,12 @@ configurations {
 }
 
 kotlin {
-	jvmToolchain(17)
+	compilerOptions {
+		jvmTarget = JvmTarget.JVM_17
+	}
 }
 
-compileJava {
+tasks.withType(JavaCompile).configureEach {
 	options.release = 17
 }
 
@@ -49,8 +51,8 @@ dependencies {
 
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	implementation 'io.javalin:javalin:3.5.0'
-	implementation 'org.slf4j:slf4j-simple:1.7.30'
-	implementation 'com.github.ajalt:clikt:2.2.0'
+	implementation 'org.slf4j:slf4j-simple:2.0.20'
+	implementation 'com.github.ajalt:clikt:2.8.0'
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
 	implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 	implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
@@ -65,11 +67,12 @@ dependencies {
 	def junitVersion = '5.5.2'
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 	testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-	testImplementation 'io.mockk:mockk:1.12.4'
-	testImplementation 'org.skyscreamer:jsonassert:1.5.0'
-	testImplementation "com.squareup.okhttp3:okhttp:4.10.0"
+	testImplementation 'io.mockk:mockk:1.14.11'
+	testImplementation 'org.skyscreamer:jsonassert:1.5.3'
+	testImplementation "com.squareup.okhttp3:okhttp:4.12.0"
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.5.2"
 
 	kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 }
@@ -183,7 +186,7 @@ task macosJars {
 idea {
 	module {
 		sourceDirs += file('build/generated/source/kapt/main')
-		testSourceDirs += file('build/generated/source/kapt/test')
+		testSources.from(file('build/generated/source/kapt/test'))
 		generatedSourceDirs += file('build/generated/source/kapt/main')
 	}
 }

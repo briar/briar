@@ -5,12 +5,15 @@ import android.content.Context;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.Permission;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentActivity;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.ACCESS_LOCAL_NETWORK;
 import static android.Manifest.permission.BLUETOOTH_ADVERTISE;
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.Manifest.permission.BLUETOOTH_SCAN;
@@ -33,6 +36,8 @@ import static org.briarproject.briar.android.util.PermissionUtils.wasGrantedBlue
 
 class AddNearbyContactPermissionManager {
 
+	// We also request ACCESS_LOCAL_NETWORK on API >= 37, but as we can
+	// continue without it, we don't need to track the response
 	private Permission cameraPermission = UNKNOWN;
 	private Permission locationPermission = SDK_INT < 31 ? UNKNOWN : GRANTED;
 	private Permission bluetoothPermissions = SDK_INT < 31 ? GRANTED : UNKNOWN;
@@ -97,7 +102,7 @@ class AddNearbyContactPermissionManager {
 					R.string.permission_bluetooth_denied_body);
 			return false;
 		}
-		// Should we show the rationale for one or both permissions?
+		// Should we show the rationale for any essential permissions?
 		if (cameraPermission == SHOW_RATIONALE &&
 				locationPermission == SHOW_RATIONALE) {
 			showRationale(ctx, R.string.permission_camera_location_title,
@@ -129,18 +134,19 @@ class AddNearbyContactPermissionManager {
 	}
 
 	private void requestPermissions() {
-		String[] permissions;
+		List<String> permissions = new ArrayList<>();
+		permissions.add(CAMERA);
 		if (isBluetoothSupported) {
 			if (SDK_INT < 31) {
-				permissions = new String[] {CAMERA, ACCESS_FINE_LOCATION};
+				permissions.add(ACCESS_FINE_LOCATION);
 			} else {
-				permissions = new String[] {CAMERA, BLUETOOTH_ADVERTISE,
-						BLUETOOTH_CONNECT, BLUETOOTH_SCAN};
+				permissions.add(BLUETOOTH_ADVERTISE);
+				permissions.add(BLUETOOTH_CONNECT);
+				permissions.add(BLUETOOTH_SCAN);
 			}
-		} else {
-			permissions = new String[] {CAMERA};
 		}
-		requestPermissions.accept(permissions);
+		if (SDK_INT >= 37) permissions.add(ACCESS_LOCAL_NETWORK);
+		requestPermissions.accept(permissions.toArray(new String[0]));
 	}
 
 	void onRequestPermissionResult(Map<String, Boolean> result) {

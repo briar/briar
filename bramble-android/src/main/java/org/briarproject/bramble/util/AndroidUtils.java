@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
+import static android.Manifest.permission.ACCESS_LOCAL_NETWORK;
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.RECEIVER_EXPORTED;
@@ -134,6 +135,11 @@ public class AndroidUtils {
 		} catch (SecurityException e) {
 			return null;
 		}
+	}
+
+	public static boolean hasLocalNetworkPermission(Context ctx) {
+		return SDK_INT < 37 || ctx.checkPermission(ACCESS_LOCAL_NETWORK, myPid(),
+				myUid()) == PERMISSION_GRANTED;
 	}
 
 	public static File getReportDir(Context ctx) {

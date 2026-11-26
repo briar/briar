@@ -4,13 +4,16 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical"
-	android:padding="@dimen/margin_large">
+	android:orientation="vertical">
+
+	<include layout="@layout/toolbar" />
 
 	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/createForumNameLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/margin_large"
+		android:layout_marginTop="@dimen/margin_large"
 		app:errorEnabled="true"
 		app:hintEnabled="false">
 
@@ -22,15 +25,18 @@
 			android:imeOptions="flagNoPersonalizedLearning"
 			android:importantForAutofill="no"
 			android:inputType="text|textCapSentences"
-			android:maxLines="1" />
+			android:maxLines="1">
 
-		<requestFocus />
+			<requestFocus />
+
+		</com.google.android.material.textfield.TextInputEditText>
 
 	</com.google.android.material.textfield.TextInputLayout>
 
 	<Button
 		android:id="@+id/createForumButton"
 		style="@style/BriarButton"
+		android:layout_marginHorizontal="@dimen/margin_large"
 		android:enabled="false"
 		android:text="@string/create_forum_button"
 		tools:enabled="true" />

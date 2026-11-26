@@ -6,6 +6,8 @@
 	android:orientation="vertical"
 	tools:context=".android.privategroup.reveal.RevealContactsActivity">
 
+	<include layout="@layout/toolbar" />
+
 	<FrameLayout
 		android:id="@+id/fragmentContainer"
 		android:layout_width="match_parent"

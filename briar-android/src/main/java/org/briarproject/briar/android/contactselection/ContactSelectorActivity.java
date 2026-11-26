@@ -37,6 +37,7 @@ public abstract class ContactSelectorActivity
 		super.onCreate(bundle);
 
 		setContentView(getLayout());
+		setUpCustomToolbar(false);
 
 		if (bundle != null) {
 			// restore group ID if it was saved
@@ -53,7 +54,7 @@ public abstract class ContactSelectorActivity
 
 	@LayoutRes
 	protected int getLayout() {
-		return R.layout.activity_fragment_container;
+		return R.layout.activity_fragment_container_toolbar;
 	}
 
 	@Override

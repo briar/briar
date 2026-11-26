@@ -2,6 +2,7 @@
 -keep class org.h2.Driver { *; }
 -keep class org.h2.engine.Engine { *; }
 -keep class org.h2.store.fs.** { *; }
+-keep class org.h2.mvstore.db.MVTableEngine { *; }
 # Don't warn about unused dependencies of H2 classes
 -dontwarn org.h2.**
 -dontnote org.h2.**

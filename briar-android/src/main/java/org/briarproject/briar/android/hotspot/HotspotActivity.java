@@ -16,7 +16,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -44,12 +43,8 @@ public class HotspotActivity extends BriarActivity
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_fragment_container);
-
-		ActionBar ab = getSupportActionBar();
-		if (ab != null) {
-			ab.setDisplayHomeAsUpEnabled(true);
-		}
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		FragmentManager fm = getSupportFragmentManager();
 		viewModel.getState().observe(this, hotspotState -> {

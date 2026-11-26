@@ -32,16 +32,17 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import static android.Manifest.permission.ACCESS_LOCAL_NETWORK;
 import static android.Manifest.permission.BLUETOOTH_CONNECT;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
@@ -54,6 +55,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.briar.android.util.PermissionUtils.areBluetoothPermissionsGranted;
+import static org.briarproject.briar.android.util.PermissionUtils.isPermissionGranted;
 import static org.briarproject.briar.android.util.PermissionUtils.requestBluetoothPermissions;
 import static org.briarproject.briar.android.util.PermissionUtils.showDenialDialog;
 import static org.briarproject.briar.android.util.PermissionUtils.showRationale;
@@ -73,9 +75,13 @@ public class TransportsActivity extends BriarActivity {
 	private BaseAdapter transportsAdapter;
 
 	@RequiresApi(31)
-	private final ActivityResultLauncher<String[]> requestPermissionLauncher =
+	private final ActivityResultLauncher<String[]> btPermissionLauncher =
 			registerForActivityResult(new RequestMultiplePermissions(),
 					this::handleBtPermissionResult);
+	@RequiresApi(37)
+	private final ActivityResultLauncher<String> wifiPermissionLauncher =
+			registerForActivityResult(new RequestPermission(),
+					this::handleWifiPermissionResult);
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -88,13 +94,8 @@ public class TransportsActivity extends BriarActivity {
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-
 		setContentView(R.layout.activity_transports);
+		setUpCustomToolbar(false);
 
 		GridView grid = findViewById(R.id.grid);
 		initializeCards();
@@ -221,12 +222,32 @@ public class TransportsActivity extends BriarActivity {
 	private void onClicked(TransportId transportId, boolean enable) {
 		if (transportId.equals(BluetoothConstants.ID) && enable
 				&& SDK_INT >= 31 && !areBluetoothPermissionsGranted(this)) {
-			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT)) {
+			// If we already have the local network permission then we don't
+			// need to show the rationale for the Bluetooth permissions: they
+			// should be granted automatically when requested as they belong
+			// to the same permission group
+			if (shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT) &&
+					!isPermissionGranted(this, ACCESS_LOCAL_NETWORK)) {
 				showRationale(this, R.string.permission_bluetooth_title,
 						R.string.permission_bluetooth_body,
 						this::requestBtPermissions);
 			} else {
 				requestBtPermissions();
+			}
+		} else if (transportId.equals(LanTcpConstants.ID) && enable
+				&& SDK_INT >= 37 &&
+				!isPermissionGranted(this, ACCESS_LOCAL_NETWORK)) {
+			// If we already have the Bluetooth permissions then we don't need
+			// to show the rationale for the local network permission: it
+			// should be granted automatically when requested as it belongs
+			// to the same permission group
+			if (shouldShowRequestPermissionRationale(ACCESS_LOCAL_NETWORK) &&
+					!areBluetoothPermissionsGranted(this)) {
+				showRationale(this, R.string.permission_network_title,
+						R.string.permission_network_body,
+						this::requestWifiPermissions);
+			} else {
+				requestWifiPermissions();
 			}
 		} else {
 			viewModel.enableTransport(transportId, enable);
@@ -348,7 +369,7 @@ public class TransportsActivity extends BriarActivity {
 
 	@RequiresApi(31)
 	private void requestBtPermissions() {
-		requestBluetoothPermissions(requestPermissionLauncher);
+		requestBluetoothPermissions(btPermissionLauncher);
 	}
 
 	@RequiresApi(31)
@@ -358,9 +379,31 @@ public class TransportsActivity extends BriarActivity {
 		} else {
 			// update adapter to reflect the "off" toggle state after denying
 			transportsAdapter.notifyDataSetChanged();
-			showDenialDialog(this,
-					R.string.permission_bluetooth_title,
-					R.string.permission_bluetooth_denied_body);
+			if (!shouldShowRequestPermissionRationale(BLUETOOTH_CONNECT)) {
+				showDenialDialog(this,
+						R.string.permission_bluetooth_title,
+						R.string.permission_bluetooth_denied_body);
+			}
+		}
+	}
+
+	@RequiresApi(37)
+	private void requestWifiPermissions() {
+		wifiPermissionLauncher.launch(ACCESS_LOCAL_NETWORK);
+	}
+
+	@RequiresApi(37)
+	private void handleWifiPermissionResult(Boolean granted) {
+		if (granted) {
+			viewModel.enableTransport(LanTcpConstants.ID, true);
+		} else {
+			// update adapter to reflect the "off" toggle state after denying
+			transportsAdapter.notifyDataSetChanged();
+			if (!shouldShowRequestPermissionRationale(ACCESS_LOCAL_NETWORK)) {
+				showDenialDialog(this,
+						R.string.permission_network_title,
+						R.string.permission_network_denied_body);
+			}
 		}
 	}
 

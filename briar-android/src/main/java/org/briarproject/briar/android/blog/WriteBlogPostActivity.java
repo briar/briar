@@ -86,6 +86,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		groupId = new GroupId(b);
 
 		setContentView(R.layout.activity_write_blog_post);
+		setUpCustomToolbar(false);
 
 		input = findViewById(R.id.textInput);
 		TextSendController sendController =

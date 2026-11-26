@@ -45,7 +45,8 @@ public class IntroductionActivity extends BriarActivity
 
 		viewModel.setFirstContactId(firstContactId);
 
-		setContentView(R.layout.activity_fragment_container);
+		setContentView(R.layout.activity_fragment_container_toolbar);
+		setUpCustomToolbar(false);
 
 		if (savedInstanceState == null) {
 			showInitialFragment(new ContactChooserFragment());

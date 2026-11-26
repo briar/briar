@@ -43,6 +43,23 @@ public class ViewActions {
 		onView(isRoot()).perform(waitForActivity(clazz, RESUMED, timeout));
 	}
 
+	/**
+	 * Clicks via View.performClick() for devices that drop injected touches.
+	 */
+	public static ViewAction performClick() {
+		return new CustomViewAction(0) {
+			@Override
+			protected boolean exitConditionTrue(View view) {
+				return view.performClick();
+			}
+
+			@Override
+			public String getDescription() {
+				return "perform click";
+			}
+		};
+	}
+
 	public static ViewAction waitUntilMatches(Matcher<View> viewMatcher) {
 		return waitUntilMatches(viewMatcher, TIMEOUT_MS);
 	}

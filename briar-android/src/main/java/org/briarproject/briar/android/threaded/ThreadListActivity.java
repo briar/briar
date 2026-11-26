@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.CallSuper;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -45,8 +46,11 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		extends BriarActivity implements SendListener, ThreadItemListener<I> {
 
 	protected final A adapter = createAdapter();
+
 	protected abstract ThreadListViewModel<I> getViewModel();
+
 	protected abstract A createAdapter();
+
 	protected BriarRecyclerView list;
 	protected TextInputView textInput;
 	protected TextSendController sendController;
@@ -54,6 +58,17 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 
 	private LinearLayoutManager layoutManager;
 	private ThreadScrollListener<I> scrollListener;
+
+	// only used when an item is highlighted for reply
+	private final OnBackPressedCallback onBackPressedCallback =
+			new OnBackPressedCallback(false) {
+				@Override
+				public void handleOnBackPressed() {
+					textInput.clearText();
+					getViewModel().setReplyId(null);
+					updateTextInput();
+				}
+			};
 
 	@CallSuper
 	@Override
@@ -85,6 +100,8 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		scrollListener = new ThreadScrollListener<>(adapter, viewModel,
 				upButton, downButton);
 		list.getRecyclerView().addOnScrollListener(scrollListener);
+
+		getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 
 		upButton.setOnClickListener(v -> {
 			int position = adapter.getVisibleUnreadPosTop(layoutManager);
@@ -134,17 +151,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onBackPressed() {
-		if (adapter.getHighlightedItem() != null) {
-			textInput.clearText();
-			getViewModel().setReplyId(null);
-			updateTextInput();
-		} else {
-			super.onBackPressed();
-		}
 	}
 
 	@Override
@@ -239,6 +245,9 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 			textInput.setHint(R.string.forum_new_message_hint);
 		}
 		adapter.setHighlightedItem(replyId);
+
+		// enable custom back behavior for highlighted items
+		onBackPressedCallback.setEnabled(replyId != null);
 	}
 
 	@Override
