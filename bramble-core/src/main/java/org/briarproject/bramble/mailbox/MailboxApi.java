@@ -18,6 +18,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
+import okhttp3.Response;
+
 @NotNullByDefault
 interface MailboxApi {
 
@@ -176,6 +178,18 @@ interface MailboxApi {
 
 	@Immutable
 	class ApiException extends Exception {
+
+		public ApiException() {
+			super();
+		}
+
+		public ApiException(Response response) {
+			super(response.code() + " " + response.message());
+		}
+
+		public ApiException(Throwable cause) {
+			super(cause);
+		}
 	}
 
 	@Immutable

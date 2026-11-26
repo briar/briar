@@ -1,11 +1,17 @@
 package org.briarproject.bramble.mailbox;
 
 import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.WeakSingletonProvider;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.mailbox.InvalidMailboxIdException;
@@ -35,9 +41,11 @@ import okhttp3.ResponseBody;
 
 import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES;
 import static java.util.Collections.sort;
+import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
 import static okhttp3.internal.Util.EMPTY_REQUEST;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @NotNullByDefault
 class MailboxApiImpl implements MailboxApi {
@@ -58,6 +66,10 @@ class MailboxApiImpl implements MailboxApi {
 			UrlConverter urlConverter) {
 		this.httpClientProvider = httpClientProvider;
 		this.urlConverter = urlConverter;
+		SimpleModule module = new SimpleModule("UniqueIdSerializer",
+				new Version(1, 0, 0, null, null, null));
+		module.addSerializer(UniqueId.class, new UniqueIdSerializer());
+		mapper.registerModule(module);
 	}
 
 	@Override
@@ -161,7 +173,7 @@ class MailboxApiImpl implements MailboxApi {
 		RequestBody body = RequestBody.create(JSON, bodyBytes);
 		Response response = sendPostRequest(properties, "/contacts", body);
 		if (response.code() == 409) throw new TolerableFailureException();
-		if (!response.isSuccessful()) throw new ApiException();
+		if (!response.isSuccessful()) throw new ApiException(response);
 	}
 
 	@Override
@@ -351,5 +363,14 @@ class MailboxApiImpl implements MailboxApi {
 
 	private String getBaseUrl(MailboxProperties properties) {
 		return urlConverter.convertOnionToBaseUrl(properties.getOnion());
+	}
+
+	private static class UniqueIdSerializer extends JsonSerializer<UniqueId> {
+
+		@Override
+		public void serialize(UniqueId value, JsonGenerator gen,
+				SerializerProvider serializers) throws IOException {
+			gen.writeString(toHexString(value.getBytes()).toLowerCase(US));
+		}
 	}
 }
