@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -49,6 +50,8 @@ import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @NotNullByDefault
 class MailboxApiImpl implements MailboxApi {
+
+	private static final Logger LOG = getLogger(MailboxApiImpl.class.getName());
 
 	private static final MediaType JSON =
 			requireNonNull(MediaType.parse("application/json; charset=utf-8"));
@@ -78,16 +81,16 @@ class MailboxApiImpl implements MailboxApi {
 	public List<MailboxVersion> getServerSupports(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		Response response = sendGetRequest(properties, "/versions");
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = sendGetRequest(properties, "/versions")) {
+			if (response.code() != 200) throw new ApiException(response);
 
-		ResponseBody body = response.body();
-		if (body == null) throw new ApiException();
-		try {
-			JsonNode node = mapper.readTree(body.string());
-			return parseServerSupports(node);
-		} catch (JacksonException e) {
-			throw new ApiException();
+			ResponseBody body = response.body();
+			try {
+				JsonNode node = mapper.readTree(body.string());
+				return parseServerSupports(node);
+			} catch (JacksonException e) {
+				throw new ApiException(e);
+			}
 		}
 	}
 
@@ -100,22 +103,24 @@ class MailboxApiImpl implements MailboxApi {
 				.put(EMPTY_REQUEST)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
-		if (response.code() == 401) throw new MailboxAlreadyPairedException();
-		if (!response.isSuccessful()) throw new ApiException();
-		ResponseBody body = response.body();
-		if (body == null) throw new ApiException();
-		try {
-			JsonNode node = mapper.readTree(body.string());
-			JsonNode tokenNode = node.get("token");
-			if (tokenNode == null) {
-				throw new ApiException();
+		try (Response response = client.newCall(request).execute()) {
+			if (response.code() == 401) {
+				throw new MailboxAlreadyPairedException();
 			}
-			return new MailboxProperties(properties.getOnion(),
-					MailboxAuthToken.fromString(tokenNode.textValue()),
-					parseServerSupports(node));
-		} catch (JacksonException | InvalidMailboxIdException e) {
-			throw new ApiException();
+			if (!response.isSuccessful()) throw new ApiException(response);
+			ResponseBody body = response.body();
+			try {
+				JsonNode node = mapper.readTree(body.string());
+				JsonNode tokenNode = node.get("token");
+				if (tokenNode == null) {
+					throw new ApiException();
+				}
+				return new MailboxProperties(properties.getOnion(),
+						MailboxAuthToken.fromString(tokenNode.textValue()),
+						parseServerSupports(node));
+			} catch (JacksonException | InvalidMailboxIdException e) {
+				throw new ApiException(e);
+			}
 		}
 	}
 
@@ -147,9 +152,10 @@ class MailboxApiImpl implements MailboxApi {
 	@Override
 	public boolean checkStatus(MailboxProperties properties)
 			throws IOException, ApiException {
-		Response response = sendGetRequest(properties, "/status");
-		if (response.code() == 401) throw new ApiException();
-		return response.isSuccessful();
+		try (Response response = sendGetRequest(properties, "/status")) {
+			if (response.code() == 401) throw new ApiException();
+			return response.isSuccessful();
+		}
 	}
 
 	@Override
@@ -161,8 +167,9 @@ class MailboxApiImpl implements MailboxApi {
 				.delete()
 				.build();
 		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
-		if (response.code() != 204) throw new ApiException();
+		try (Response response = client.newCall(request).execute()) {
+			if (response.code() != 204) throw new ApiException(response);
+		}
 	}
 
 	/* Contact Management API (owner only) */
@@ -172,10 +179,12 @@ class MailboxApiImpl implements MailboxApi {
 			throws IOException, ApiException, TolerableFailureException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
 		byte[] bodyBytes = mapper.writeValueAsBytes(contact);
-		RequestBody body = RequestBody.create(JSON, bodyBytes);
-		Response response = sendPostRequest(properties, "/contacts", body);
-		if (response.code() == 409) throw new TolerableFailureException();
-		if (!response.isSuccessful()) throw new ApiException(response);
+		RequestBody body = RequestBody.create(bodyBytes, JSON);
+		try (Response response =
+				sendPostRequest(properties, "/contacts", body)) {
+			if (response.code() == 409) throw new TolerableFailureException();
+			if (!response.isSuccessful()) throw new ApiException(response);
+		}
 	}
 
 	@Override
@@ -189,33 +198,34 @@ class MailboxApiImpl implements MailboxApi {
 				.url(url)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
-		if (response.code() == 404) throw new TolerableFailureException();
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = client.newCall(request).execute()) {
+			if (response.code() == 404) throw new TolerableFailureException();
+			if (response.code() != 200) throw new ApiException(response);
+		}
 	}
 
 	@Override
 	public Collection<ContactId> getContacts(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		Response response = sendGetRequest(properties, "/contacts");
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = sendGetRequest(properties, "/contacts")) {
+			if (response.code() != 200) throw new ApiException(response);
 
-		ResponseBody body = response.body();
-		if (body == null) throw new ApiException();
-		try {
-			JsonNode node = mapper.readTree(body.string());
-			ArrayNode contactsNode = getArray(node, "contacts");
-			List<ContactId> list = new ArrayList<>();
-			for (JsonNode contactNode : contactsNode) {
-				if (!contactNode.isNumber()) throw new ApiException();
-				int id = contactNode.intValue();
-				if (id < 1) throw new ApiException();
-				list.add(new ContactId(id));
+			ResponseBody body = response.body();
+			try {
+				JsonNode node = mapper.readTree(body.string());
+				ArrayNode contactsNode = getArray(node, "contacts");
+				List<ContactId> list = new ArrayList<>();
+				for (JsonNode contactNode : contactsNode) {
+					if (!contactNode.isNumber()) throw new ApiException();
+					int id = contactNode.intValue();
+					if (id < 1) throw new ApiException();
+					list.add(new ContactId(id));
+				}
+				return list;
+			} catch (JacksonException e) {
+				throw new ApiException(e);
 			}
-			return list;
-		} catch (JacksonException e) {
-			throw new ApiException();
 		}
 	}
 
@@ -225,9 +235,10 @@ class MailboxApiImpl implements MailboxApi {
 	public void addFile(MailboxProperties properties, MailboxFolderId folderId,
 			File file) throws IOException, ApiException {
 		String path = "/files/" + folderId;
-		RequestBody body = RequestBody.create(FILE, file);
-		Response response = sendPostRequest(properties, path, body);
-		if (response.code() != 200) throw new ApiException();
+		RequestBody body = RequestBody.create(file, FILE);
+		try (Response response = sendPostRequest(properties, path, body)) {
+			if (response.code() != 200) throw new ApiException(response);
+		}
 	}
 
 	@Override
@@ -235,36 +246,37 @@ class MailboxApiImpl implements MailboxApi {
 			MailboxFolderId folderId)
 			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId;
-		Response response = sendGetRequest(properties, path);
-		if (response.code() == 404) throw new TolerableFailureException();
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = sendGetRequest(properties, path)) {
+			if (response.code() == 404) throw new TolerableFailureException();
+			if (response.code() != 200) throw new ApiException(response);
 
-		ResponseBody body = response.body();
-		if (body == null) throw new ApiException();
-		try {
-			JsonNode node = mapper.readTree(body.string());
-			ArrayNode filesNode = getArray(node, "files");
-			List<MailboxFile> list = new ArrayList<>();
-			for (JsonNode fileNode : filesNode) {
-				if (!fileNode.isObject()) throw new ApiException();
-				ObjectNode objectNode = (ObjectNode) fileNode;
-				JsonNode nameNode = objectNode.get("name");
-				JsonNode timeNode = objectNode.get("time");
-				if (nameNode == null || !nameNode.isTextual()) {
-					throw new ApiException();
+			ResponseBody body = response.body();
+			try {
+				JsonNode node = mapper.readTree(body.string());
+				ArrayNode filesNode = getArray(node, "files");
+				List<MailboxFile> list = new ArrayList<>();
+				for (JsonNode fileNode : filesNode) {
+					if (!fileNode.isObject()) throw new ApiException();
+					ObjectNode objectNode = (ObjectNode) fileNode;
+					JsonNode nameNode = objectNode.get("name");
+					JsonNode timeNode = objectNode.get("time");
+					if (nameNode == null || !nameNode.isTextual()) {
+						throw new ApiException();
+					}
+					if (timeNode == null || !timeNode.isNumber()) {
+						throw new ApiException();
+					}
+					String name = nameNode.asText();
+					long time = timeNode.asLong();
+					if (time < 1) throw new ApiException();
+					list.add(new MailboxFile(MailboxFileId.fromString(name),
+							time));
 				}
-				if (timeNode == null || !timeNode.isNumber()) {
-					throw new ApiException();
-				}
-				String name = nameNode.asText();
-				long time = timeNode.asLong();
-				if (time < 1) throw new ApiException();
-				list.add(new MailboxFile(MailboxFileId.fromString(name), time));
+				sort(list);
+				return list;
+			} catch (JacksonException | InvalidMailboxIdException e) {
+				throw new ApiException(e);
 			}
-			sort(list);
-			return list;
-		} catch (JacksonException | InvalidMailboxIdException e) {
-			throw new ApiException();
 		}
 	}
 
@@ -273,14 +285,14 @@ class MailboxApiImpl implements MailboxApi {
 			MailboxFileId fileId, File file)
 			throws IOException, ApiException, TolerableFailureException {
 		String path = "/files/" + folderId + "/" + fileId;
-		Response response = sendGetRequest(properties, path);
-		if (response.code() == 404) throw new TolerableFailureException();
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = sendGetRequest(properties, path)) {
+			if (response.code() == 404) throw new TolerableFailureException();
+			if (response.code() != 200) throw new ApiException(response);
 
-		ResponseBody body = response.body();
-		if (body == null) throw new ApiException();
-		FileOutputStream outputStream = new FileOutputStream(file);
-		copyAndClose(body.byteStream(), outputStream);
+			ResponseBody body = response.body();
+			FileOutputStream outputStream = new FileOutputStream(file);
+			copyAndClose(body.byteStream(), outputStream);
+		}
 	}
 
 	@Override
@@ -293,37 +305,38 @@ class MailboxApiImpl implements MailboxApi {
 				.url(getBaseUrl(properties) + path)
 				.build();
 		OkHttpClient client = httpClientProvider.get();
-		Response response = client.newCall(request).execute();
-		if (response.code() == 404) throw new TolerableFailureException();
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = client.newCall(request).execute()) {
+			if (response.code() == 404) throw new TolerableFailureException();
+			if (response.code() != 200) throw new ApiException(response);
+		}
 	}
 
 	@Override
 	public List<MailboxFolderId> getFolders(MailboxProperties properties)
 			throws IOException, ApiException {
 		if (!properties.isOwner()) throw new IllegalArgumentException();
-		Response response = sendGetRequest(properties, "/folders");
-		if (response.code() != 200) throw new ApiException();
+		try (Response response = sendGetRequest(properties, "/folders")) {
+			if (response.code() != 200) throw new ApiException(response);
 
-		ResponseBody body = response.body();
-		if (body == null) throw new ApiException();
-		try {
-			JsonNode node = mapper.readTree(body.string());
-			ArrayNode filesNode = getArray(node, "folders");
-			List<MailboxFolderId> list = new ArrayList<>();
-			for (JsonNode fileNode : filesNode) {
-				if (!fileNode.isObject()) throw new ApiException();
-				ObjectNode objectNode = (ObjectNode) fileNode;
-				JsonNode idNode = objectNode.get("id");
-				if (idNode == null || !idNode.isTextual()) {
-					throw new ApiException();
+			ResponseBody body = response.body();
+			try {
+				JsonNode node = mapper.readTree(body.string());
+				ArrayNode filesNode = getArray(node, "folders");
+				List<MailboxFolderId> list = new ArrayList<>();
+				for (JsonNode fileNode : filesNode) {
+					if (!fileNode.isObject()) throw new ApiException();
+					ObjectNode objectNode = (ObjectNode) fileNode;
+					JsonNode idNode = objectNode.get("id");
+					if (idNode == null || !idNode.isTextual()) {
+						throw new ApiException();
+					}
+					String id = idNode.asText();
+					list.add(MailboxFolderId.fromString(id));
 				}
-				String id = idNode.asText();
-				list.add(MailboxFolderId.fromString(id));
+				return list;
+			} catch (JacksonException | InvalidMailboxIdException e) {
+				throw new ApiException(e);
 			}
-			return list;
-		} catch (JacksonException | InvalidMailboxIdException e) {
-			throw new ApiException();
 		}
 	}
 
