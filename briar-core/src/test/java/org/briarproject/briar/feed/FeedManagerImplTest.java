@@ -114,35 +114,37 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testFetchFeedsIoException() throws Exception {
 		// Fetching the feed will fail
-		MockWebServer server = new MockWebServer();
-		String url = server.url("/").toString();
-		server.enqueue(new MockResponse()
-				.setBody("  ")
-				.setSocketPolicy(DISCONNECT_DURING_RESPONSE_BODY));
+		try (MockWebServer server = new MockWebServer()) {
+			String url = server.url("/").toString();
+			server.enqueue(new MockResponse()
+					.setBody("  ")
+					.setSocketPolicy(DISCONNECT_DURING_RESPONSE_BODY));
 
-		Feed feed = createFeed(url, blog);
+			Feed feed = createFeed(url, blog);
 
-		expectGetFeeds(feed);
-		expectGetAndStoreFeeds(feed);
+			expectGetFeeds(feed);
+			expectGetAndStoreFeeds(feed);
 
-		feedManager.setTorActive(true);
-		feedManager.fetchFeeds();
+			feedManager.setTorActive(true);
+			feedManager.fetchFeeds();
+		}
 	}
 
 	@Test
 	public void testFetchFeedsEmptyResponseBody() throws Exception {
 		// Fetching the feed will succeed, but parsing the empty body will fail
-		MockWebServer server = new MockWebServer();
-		String url = server.url("/").toString();
-		server.enqueue(new MockResponse());
+		try (MockWebServer server = new MockWebServer()) {
+			String url = server.url("/").toString();
+			server.enqueue(new MockResponse());
 
-		Feed feed = createFeed(url, blog);
+			Feed feed = createFeed(url, blog);
 
-		expectGetFeeds(feed);
-		expectGetAndStoreFeeds(feed);
+			expectGetFeeds(feed);
+			expectGetAndStoreFeeds(feed);
 
-		feedManager.setTorActive(true);
-		feedManager.fetchFeeds();
+			feedManager.setTorActive(true);
+			feedManager.fetchFeeds();
+		}
 	}
 
 	@Test
@@ -150,18 +152,19 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		// Fetching and parsing the feed will succeed; there are no entries
 		String feedXml = createRssFeedXml();
 
-		MockWebServer server = new MockWebServer();
-		String url = server.url("/").toString();
-		server.enqueue(new MockResponse().setBody(feedXml));
+		try (MockWebServer server = new MockWebServer()) {
+			String url = server.url("/").toString();
+			server.enqueue(new MockResponse().setBody(feedXml));
 
-		Feed feed = createFeed(url, blog);
+			Feed feed = createFeed(url, blog);
 
-		expectGetFeeds(feed);
-		expectUpdateFeedNoEntries(feed);
-		expectGetAndStoreFeeds(feed);
+			expectGetFeeds(feed);
+			expectUpdateFeedNoEntries(feed);
+			expectGetAndStoreFeeds(feed);
 
-		feedManager.setTorActive(true);
-		feedManager.fetchFeeds();
+			feedManager.setTorActive(true);
+			feedManager.fetchFeeds();
+		}
 	}
 
 	@Test
@@ -171,18 +174,19 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 				"<item><pubDate>" + pubDateString + "</pubDate></item>";
 		String feedXml = createRssFeedXml(entryXml);
 
-		MockWebServer server = new MockWebServer();
-		String url = server.url("/").toString();
-		server.enqueue(new MockResponse().setBody(feedXml));
+		try (MockWebServer server = new MockWebServer()) {
+			String url = server.url("/").toString();
+			server.enqueue(new MockResponse().setBody(feedXml));
 
-		Feed feed = createFeed(url, blog);
+			Feed feed = createFeed(url, blog);
 
-		expectGetFeeds(feed);
-		expectUpdateFeedOneEntry(feed);
-		expectGetAndStoreFeeds(feed);
+			expectGetFeeds(feed);
+			expectUpdateFeedOneEntry(feed);
+			expectGetAndStoreFeeds(feed);
 
-		feedManager.setTorActive(true);
-		feedManager.fetchFeeds();
+			feedManager.setTorActive(true);
+			feedManager.fetchFeeds();
+		}
 	}
 
 	@Test
@@ -190,39 +194,42 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		// Fetching and parsing the feed will succeed; there are no entries
 		String feedXml = createRssFeedXml();
 
-		MockWebServer server = new MockWebServer();
-		String url = server.url("/").toString();
-		server.enqueue(new MockResponse().setBody(feedXml));
+		try (MockWebServer server = new MockWebServer()) {
+			String url = server.url("/").toString();
+			server.enqueue(new MockResponse().setBody(feedXml));
 
-		Feed newFeed = createFeed(url, blog);
+			Feed newFeed = createFeed(url, blog);
 
-		Group existingBlogGroup = getGroup(BlogManager.CLIENT_ID,
-				BlogManager.MAJOR_VERSION);
-		Blog existingBlog = new Blog(existingBlogGroup, localAuthor, true);
-		Feed existingFeed = createFeed("http://example.com", existingBlog);
+			Group existingBlogGroup = getGroup(BlogManager.CLIENT_ID,
+					BlogManager.MAJOR_VERSION);
+			Blog existingBlog = new Blog(existingBlogGroup, localAuthor, true);
+			Feed existingFeed = createFeed("http://example.com", existingBlog);
 
-		expectGetFeeds(existingFeed);
+			expectGetFeeds(existingFeed);
 
-		context.checking(new DbExpectations() {{
-			// The added feed doesn't match any existing feed
-			oneOf(feedMatcher).findMatchingFeed(with(any(RssProperties.class)),
-					with(singletonList(existingFeed)));
-			will(returnValue(null));
-			// Create the new feed
-			oneOf(feedFactory).createFeed(with(url), with(any(SyndFeed.class)));
-			will(returnValue(newFeed));
-			// Add the new feed to the list of feeds
-			Transaction txn = new Transaction(null, false);
-			oneOf(db).transaction(with(false), withDbRunnable(txn));
-			oneOf(blogManager).addBlog(txn, blog);
-			expectGetFeeds(txn, existingFeed);
-			expectStoreFeeds(txn, existingFeed, newFeed);
-		}});
+			context.checking(new DbExpectations() {{
+				// The added feed doesn't match any existing feed
+				oneOf(feedMatcher).findMatchingFeed(
+						with(any(RssProperties.class)),
+						with(singletonList(existingFeed)));
+				will(returnValue(null));
+				// Create the new feed
+				oneOf(feedFactory).createFeed(with(url),
+						with(any(SyndFeed.class)));
+				will(returnValue(newFeed));
+				// Add the new feed to the list of feeds
+				Transaction txn = new Transaction(null, false);
+				oneOf(db).transaction(with(false), withDbRunnable(txn));
+				oneOf(blogManager).addBlog(txn, blog);
+				expectGetFeeds(txn, existingFeed);
+				expectStoreFeeds(txn, existingFeed, newFeed);
+			}});
 
-		expectUpdateFeedNoEntries(newFeed);
-		expectGetAndStoreFeeds(existingFeed, newFeed);
+			expectUpdateFeedNoEntries(newFeed);
+			expectGetAndStoreFeeds(existingFeed, newFeed);
 
-		feedManager.addFeed(url);
+			feedManager.addFeed(url);
+		}
 	}
 
 	@Test
@@ -230,25 +237,27 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		// Fetching and parsing the feed will succeed; there are no entries
 		String feedXml = createRssFeedXml();
 
-		MockWebServer server = new MockWebServer();
-		String url = server.url("/").toString();
-		server.enqueue(new MockResponse().setBody(feedXml));
+		try (MockWebServer server = new MockWebServer()) {
+			String url = server.url("/").toString();
+			server.enqueue(new MockResponse().setBody(feedXml));
 
-		Feed newFeed = createFeed(url, blog);
+			Feed newFeed = createFeed(url, blog);
 
-		expectGetFeeds(newFeed);
+			expectGetFeeds(newFeed);
 
-		context.checking(new DbExpectations() {{
-			// The added feed matches an existing feed
-			oneOf(feedMatcher).findMatchingFeed(with(any(RssProperties.class)),
-					with(singletonList(newFeed)));
-			will(returnValue(newFeed));
-		}});
+			context.checking(new DbExpectations() {{
+				// The added feed matches an existing feed
+				oneOf(feedMatcher).findMatchingFeed(
+						with(any(RssProperties.class)),
+						with(singletonList(newFeed)));
+				will(returnValue(newFeed));
+			}});
 
-		expectUpdateFeedNoEntries(newFeed);
-		expectGetAndStoreFeeds(newFeed);
+			expectUpdateFeedNoEntries(newFeed);
+			expectGetAndStoreFeeds(newFeed);
 
-		feedManager.addFeed(url);
+			feedManager.addFeed(url);
+		}
 	}
 
 	@Test
