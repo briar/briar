@@ -14,7 +14,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.lifecycle.LifecycleOwner;
@@ -76,7 +75,7 @@ public class NotificationsFragment extends PreferenceFragmentCompat {
 	private Preference notifySound;
 
 	@Override
-	public void onAttach(@NonNull Context context) {
+	public void onAttach(Context context) {
 		super.onAttach(context);
 		getAndroidComponent(context).inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
@@ -85,7 +84,8 @@ public class NotificationsFragment extends PreferenceFragmentCompat {
 	}
 
 	@Override
-	public void onCreatePreferences(Bundle bundle, String s) {
+	public void onCreatePreferences(@Nullable Bundle bundle,
+			@Nullable String s) {
 		addPreferencesFromResource(R.xml.settings_notifications);
 
 		notifyPrivateMessages = findPreference(PREF_NOTIFY_PRIVATE);

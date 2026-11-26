@@ -9,7 +9,6 @@ import android.widget.TextView;
 import org.briarproject.briar.R;
 import org.briarproject.nullsafety.NotNullByDefault;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
@@ -43,7 +42,7 @@ public class OnboardingFullDialogFragment extends DialogFragment {
 
 	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater,
+	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_onboarding_full,

@@ -25,7 +25,7 @@ public class IntroductionActivity extends BriarActivity
 	private IntroductionViewModel viewModel;
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
+	public void injectActivity(@NonNull ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(IntroductionViewModel.class);

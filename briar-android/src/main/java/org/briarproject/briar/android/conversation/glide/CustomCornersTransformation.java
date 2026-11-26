@@ -15,8 +15,6 @@ import java.security.MessageDigest;
 
 import javax.annotation.concurrent.Immutable;
 
-import androidx.annotation.NonNull;
-
 import static android.graphics.Bitmap.Config.ARGB_8888;
 import static android.graphics.Shader.TileMode.CLAMP;
 
@@ -123,7 +121,7 @@ class CustomCornersTransformation extends BitmapTransformation {
 	}
 
 	@Override
-	public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
+	public void updateDiskCacheKey(MessageDigest messageDigest) {
 		messageDigest.update((ID + radii).getBytes(CHARSET));
 	}
 

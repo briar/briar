@@ -11,7 +11,6 @@ import org.briarproject.briar.android.fragment.ErrorFragment;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
@@ -74,7 +73,7 @@ public class StartupFailureActivity extends BaseActivity implements
 	}
 
 	@Override
-	public void runOnDbThread(@NonNull Runnable runnable) {
+	public void runOnDbThread(Runnable runnable) {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -14,6 +14,8 @@ import org.briarproject.briar.api.test.TestDataCreator;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
@@ -121,7 +123,7 @@ public class TestDataActivity extends BriarActivity {
 	}
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
+	public void injectActivity(@NonNull ActivityComponent component) {
 		component.inject(this);
 	}
 

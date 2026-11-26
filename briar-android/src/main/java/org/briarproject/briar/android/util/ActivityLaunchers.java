@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts.GetContent;
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents;
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument;
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -26,7 +25,6 @@ import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageConten
 public class ActivityLaunchers {
 
 	public static class CreateDocumentAdvanced extends CreateDocument {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
@@ -36,7 +34,6 @@ public class ActivityLaunchers {
 	}
 
 	public static class GetContentAdvanced extends GetContent {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
@@ -47,7 +44,6 @@ public class ActivityLaunchers {
 	}
 
 	public static class OpenDocumentAdvanced extends OpenDocument {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String[] input) {
 			Intent i = super.createIntent(context, input);
@@ -59,7 +55,6 @@ public class ActivityLaunchers {
 	}
 
 	public static class GetImageAdvanced extends GetContent {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
@@ -72,7 +67,6 @@ public class ActivityLaunchers {
 	}
 
 	public static class GetMultipleImagesAdvanced extends GetMultipleContents {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String input) {
 			Intent i = super.createIntent(context, input);
@@ -85,7 +79,6 @@ public class ActivityLaunchers {
 	}
 
 	public static class OpenImageDocumentAdvanced extends OpenDocument {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String[] input) {
 			Intent i = super.createIntent(context, input);
@@ -99,7 +92,6 @@ public class ActivityLaunchers {
 
 	public static class OpenMultipleImageDocumentsAdvanced
 			extends OpenMultipleDocuments {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, String[] input) {
 			Intent i = super.createIntent(context, input);
@@ -113,7 +105,6 @@ public class ActivityLaunchers {
 
 	public static class RequestBluetoothDiscoverable
 			extends ActivityResultContract<Integer, Boolean> {
-		@NonNull
 		@Override
 		public Intent createIntent(Context context, Integer duration) {
 			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);

@@ -17,7 +17,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -108,7 +107,7 @@ public class FinalFragment extends Fragment {
 	}
 
 	@Override
-	public void onAttach(@NonNull Context context) {
+	public void onAttach(Context context) {
 		super.onAttach(context);
 		// onAttach(Activity) is deprecated, we are told to cast the context
 		AppCompatActivity a = (AppCompatActivity) context;

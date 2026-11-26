@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 
+import androidx.annotation.NonNull;
+
 class SharingInvitationAdapter extends
 		InvitationAdapter<SharingInvitationItem, SharingInvitationViewHolder> {
 
@@ -13,10 +15,10 @@ class SharingInvitationAdapter extends
 		super(ctx, SharingInvitationItem.class, listener);
 	}
 
+	@NonNull
 	@Override
 	public SharingInvitationViewHolder onCreateViewHolder(
-			ViewGroup parent,
-			int viewType) {
+			@NonNull ViewGroup parent, int viewType) {
 		return new SharingInvitationViewHolder(getView(parent));
 	}
 

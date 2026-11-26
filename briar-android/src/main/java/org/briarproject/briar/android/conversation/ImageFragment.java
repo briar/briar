@@ -139,7 +139,7 @@ public class ImageFragment extends Fragment
 
 	@Override
 	public boolean onLoadFailed(@Nullable GlideException e,
-			Object model, Target<Drawable> target,
+			@Nullable Object model, Target<Drawable> target,
 			boolean isFirstResource) {
 		startPostponedTransition();
 		return false;

@@ -50,7 +50,6 @@ import javax.inject.Inject;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -324,7 +323,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
-	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+	public boolean onNavigationItemSelected(MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		if (item.getItemId() == R.id.nav_btn_lock) {
 			lockManager.setLocked(true);

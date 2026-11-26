@@ -14,7 +14,6 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
@@ -66,7 +65,7 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 					this::handleBtPermissionResult);
 
 	@Override
-	public void onAttach(@NonNull Context context) {
+	public void onAttach(Context context) {
 		super.onAttach(context);
 		getAndroidComponent(context).inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
@@ -75,7 +74,8 @@ public class ConnectionsFragment extends PreferenceFragmentCompat {
 	}
 
 	@Override
-	public void onCreatePreferences(Bundle bundle, String s) {
+	public void onCreatePreferences(@Nullable Bundle bundle,
+			@Nullable String s) {
 		addPreferencesFromResource(R.xml.settings_connections);
 
 		enableBluetooth = findPreference(PREF_KEY_BLUETOOTH);

@@ -21,7 +21,6 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor;
 import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +70,6 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
-	@NotNull
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Activity activity = getActivity();

@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
@@ -70,7 +69,7 @@ class ReportViewModel extends AndroidViewModel {
 	private String initialComment;
 
 	@Inject
-	ReportViewModel(@NonNull Application application,
+	ReportViewModel(Application application,
 			NetworkUsageMetrics networkUsageMetrics,
 			CachingLogHandler logHandler,
 			LogDecrypter logDecrypter,

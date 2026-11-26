@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -34,7 +35,8 @@ public class DisplayFragment extends PreferenceFragmentCompat {
 	public static final String PREF_THEME = "pref_key_theme";
 
 	@Override
-	public void onCreatePreferences(Bundle bundle, String s) {
+	public void onCreatePreferences(@Nullable Bundle bundle,
+			@Nullable String s) {
 		addPreferencesFromResource(R.xml.settings_display);
 
 		ListPreference language = requireNonNull(findPreference(PREF_LANGUAGE));

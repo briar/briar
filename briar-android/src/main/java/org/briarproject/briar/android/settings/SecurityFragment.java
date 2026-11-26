@@ -10,7 +10,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
@@ -39,7 +38,7 @@ public class SecurityFragment extends PreferenceFragmentCompat {
 	private ListPreference screenLockTimeout;
 
 	@Override
-	public void onAttach(@NonNull Context context) {
+	public void onAttach(Context context) {
 		super.onAttach(context);
 		getAndroidComponent(context).inject(this);
 		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
@@ -47,7 +46,8 @@ public class SecurityFragment extends PreferenceFragmentCompat {
 	}
 
 	@Override
-	public void onCreatePreferences(Bundle bundle, String s) {
+	public void onCreatePreferences(@Nullable Bundle bundle,
+			@Nullable String s) {
 		addPreferencesFromResource(R.xml.settings_security);
 		getPreferenceManager().setPreferenceDataStore(viewModel.settingsStore);
 

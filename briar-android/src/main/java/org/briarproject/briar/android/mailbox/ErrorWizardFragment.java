@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -176,24 +175,24 @@ public class ErrorWizardFragment extends Fragment {
 	private void onCheckedChanged() {
 		transition.addListener(new Transition.TransitionListener() {
 			@Override
-			public void onTransitionStart(@NonNull Transition transition) {
+			public void onTransitionStart(Transition transition) {
 			}
 
 			@Override
-			public void onTransitionEnd(@NonNull Transition transition) {
+			public void onTransitionEnd(Transition transition) {
 				scrollView.fullScroll(FOCUS_DOWN);
 			}
 
 			@Override
-			public void onTransitionCancel(@NonNull Transition transition) {
+			public void onTransitionCancel(Transition transition) {
 			}
 
 			@Override
-			public void onTransitionPause(@NonNull Transition transition) {
+			public void onTransitionPause(Transition transition) {
 			}
 
 			@Override
-			public void onTransitionResume(@NonNull Transition transition) {
+			public void onTransitionResume(Transition transition) {
 			}
 		});
 		beginDelayedTransition(scrollView, transition);

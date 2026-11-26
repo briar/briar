@@ -33,8 +33,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
-
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -313,7 +311,7 @@ public abstract class BrambleIntegrationTest<C extends BrambleIntegrationTestCom
 		EventBus eventBus = component.getEventBus();
 		eventBus.addListener(new EventListener() {
 			@Override
-			public void eventOccurred(@Nonnull Event e) {
+			public void eventOccurred(Event e) {
 				if (e == marker) {
 					latch.countDown();
 					eventBus.removeListener(this);

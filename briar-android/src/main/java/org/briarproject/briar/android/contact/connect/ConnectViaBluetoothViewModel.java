@@ -34,7 +34,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 
 import static java.util.Objects.requireNonNull;
@@ -202,7 +201,7 @@ class ConnectViaBluetoothViewModel extends DbViewModel implements
 
 	@UiThread
 	@Override
-	public void eventOccurred(@NonNull Event e) {
+	public void eventOccurred(Event e) {
 		if (e instanceof ConnectionOpenedEvent) {
 			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
 			if (c.getContactId().equals(contactId) && c.isIncoming() &&

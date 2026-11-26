@@ -7,6 +7,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 
+import androidx.annotation.NonNull;
+
 public class PanicPreferencesActivity extends BriarActivity {
 
 	@Override
@@ -18,7 +20,7 @@ public class PanicPreferencesActivity extends BriarActivity {
 	}
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
+	public void injectActivity(@NonNull ActivityComponent component) {
 		component.inject(this);
 	}
 

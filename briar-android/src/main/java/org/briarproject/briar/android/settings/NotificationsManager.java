@@ -16,7 +16,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -143,7 +142,6 @@ class NotificationsManager {
 		return notifyVibration;
 	}
 
-	@NonNull
 	LiveData<Boolean> getNotifySound() {
 		return notifySound;
 	}

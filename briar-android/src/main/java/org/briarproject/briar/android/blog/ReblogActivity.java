@@ -11,6 +11,8 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
+import androidx.annotation.NonNull;
+
 import static org.briarproject.briar.android.blog.BlogPostFragment.POST_ID;
 
 public class ReblogActivity extends BriarActivity implements
@@ -48,7 +50,7 @@ public class ReblogActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
+	public void injectActivity(@NonNull ActivityComponent component) {
 		component.inject(this);
 	}
 

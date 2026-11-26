@@ -10,6 +10,8 @@ import org.briarproject.briar.android.contact.BaseContactListAdapter;
 import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.contact.ContactItemViewHolder;
 
+import androidx.annotation.NonNull;
+
 class SharingStatusAdapter extends
 		BaseContactListAdapter<ContactItem, ContactItemViewHolder<ContactItem>> {
 
@@ -17,9 +19,10 @@ class SharingStatusAdapter extends
 		super(context, ContactItem.class, null);
 	}
 
+	@NonNull
 	@Override
 	public ContactItemViewHolder<ContactItem> onCreateViewHolder(
-			ViewGroup viewGroup, int i) {
+			@NonNull ViewGroup viewGroup, int i) {
 		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
 				R.layout.list_item_contact_small, viewGroup, false);
 		return new ContactItemViewHolder<>(v);

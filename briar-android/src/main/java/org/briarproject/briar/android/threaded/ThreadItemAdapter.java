@@ -11,7 +11,6 @@ import org.briarproject.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,18 +44,16 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		this.listener = listener;
 	}
 
-	@NonNull
 	@Override
-	public BaseThreadItemViewHolder<I> onCreateViewHolder(@NonNull
-			ViewGroup parent, int viewType) {
+	public BaseThreadItemViewHolder<I> onCreateViewHolder(ViewGroup parent,
+			int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.list_item_thread, parent, false);
 		return new ThreadPostViewHolder<>(v);
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull BaseThreadItemViewHolder<I> ui,
-			int position) {
+	public void onBindViewHolder(BaseThreadItemViewHolder<I> ui, int position) {
 		I item = getItem(position);
 		ui.bind(item, listener);
 	}

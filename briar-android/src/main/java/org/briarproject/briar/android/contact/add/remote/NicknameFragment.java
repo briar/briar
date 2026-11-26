@@ -28,7 +28,6 @@ import org.briarproject.nullsafety.ParametersNotNullByDefault;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.lifecycle.LifecycleOwner;
@@ -105,7 +104,7 @@ public class NicknameFragment extends BaseFragment {
 	}
 
 	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
+	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString(SAVED_LINK, viewModel.getRemoteHandshakeLink());
 	}

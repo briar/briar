@@ -23,6 +23,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -58,7 +59,7 @@ public class ChangePasswordActivity extends BriarActivity
 	ChangePasswordViewModel viewModel;
 
 	@Override
-	public void injectActivity(ActivityComponent component) {
+	public void injectActivity(@NonNull ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(ChangePasswordViewModel.class);

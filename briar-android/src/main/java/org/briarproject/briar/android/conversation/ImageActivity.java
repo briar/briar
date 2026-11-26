@@ -26,7 +26,6 @@ import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
 import org.briarproject.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.nullsafety.ParametersNotNullByDefault;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -293,7 +292,6 @@ public class ImageActivity extends BriarActivity
 			super(ImageActivity.this);
 		}
 
-		@NotNull
 		@Override
 		public Fragment createFragment(int position) {
 			Fragment f = ImageFragment.newInstance(
