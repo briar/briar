@@ -95,10 +95,9 @@ class TestTaskScheduler implements TaskScheduler {
 			this.cancelled = cancelled;
 		}
 
-		@SuppressWarnings("UseCompareMethod") // Animal Sniffer
 		@Override
 		public int compareTo(Task task) {
-			return Long.valueOf(dueMillis).compareTo(task.dueMillis);
+			return Long.compare(dueMillis, task.dueMillis);
 		}
 
 		/**

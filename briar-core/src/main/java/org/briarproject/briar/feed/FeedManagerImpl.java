@@ -66,7 +66,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static java.util.Collections.singletonList;
-import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -419,8 +418,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 		return db.transactionWithResult(false, txn -> {
 			long lastEntryTime = feed.getLastEntryTime();
-			//noinspection Java8ListSort
-			sort(entries, getEntryComparator());
+			entries.sort(getEntryComparator());
 			for (SyndEntry entry : entries) {
 				long entryTime;
 				if (entry.getPublishedDate() != null) {
@@ -454,7 +452,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 			if (content.getValue() != null)
 				b.append(content.getValue());
 		}
-		if (entry.getContents().size() == 0) {
+		if (entry.getContents().isEmpty()) {
 			if (entry.getDescription() != null &&
 					entry.getDescription().getValue() != null)
 				b.append(entry.getDescription().getValue());
@@ -485,7 +483,6 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		if (date == null) time = now;
 		else time = Math.max(0, Math.min(date.getTime(), now));
 		String text = getPostText(b.toString());
-		//noinspection TryWithIdenticalCatches
 		try {
 			// create and store post
 			LocalAuthor localAuthor = feed.getLocalAuthor();

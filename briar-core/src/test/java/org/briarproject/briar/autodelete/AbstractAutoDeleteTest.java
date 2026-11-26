@@ -20,9 +20,9 @@ import org.junit.Before;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
-import static java.util.Collections.sort;
 import static org.briarproject.bramble.api.cleanup.CleanupManager.BATCH_DELAY_MS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -91,12 +91,11 @@ public abstract class AbstractAutoDeleteTest extends
 				conversationClient.getMessageHeaders(txn, contactId)));
 	}
 
-	@SuppressWarnings({"UseCompareMethod", "Java8ListSort"}) // Animal Sniffer
 	protected List<ConversationMessageHeader> sortHeaders(
 			Collection<ConversationMessageHeader> in) {
 		List<ConversationMessageHeader> out = new ArrayList<>(in);
-		sort(out, (a, b) ->
-				Long.valueOf(a.getTimestamp()).compareTo(b.getTimestamp()));
+		out.sort(Comparator.comparingLong(
+				ConversationMessageHeader::getTimestamp));
 		return out;
 	}
 

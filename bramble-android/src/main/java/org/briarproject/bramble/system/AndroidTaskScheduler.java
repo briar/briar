@@ -238,10 +238,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 
 		@Override
 		public int compareTo(ScheduledTask s) {
-			//noinspection UseCompareMethod
-			if (dueMillis < s.dueMillis) return -1;
-			if (dueMillis > s.dueMillis) return 1;
-			return 0;
+			return Long.compare(dueMillis, s.dueMillis);
 		}
 	}
 }

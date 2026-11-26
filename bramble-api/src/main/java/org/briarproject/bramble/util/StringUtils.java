@@ -37,7 +37,7 @@ public class StringUtils {
 	private static final Random random = new Random();
 
 	public static boolean isNullOrEmpty(@Nullable String s) {
-		return s == null || s.length() == 0;
+		return s == null || s.isEmpty();
 	}
 
 	public static String join(Collection<String> strings, String separator) {

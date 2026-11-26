@@ -104,7 +104,6 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public byte[] authMac(SecretKey macKey, IntroduceeSession s,
 			AuthorId localAuthorId) {
 		// the macKey is not yet available in the session at this point
@@ -124,7 +123,6 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void verifyAuthMac(byte[] mac, IntroduceeSession s,
 			AuthorId localAuthorId) throws GeneralSecurityException {
 		verifyAuthMac(mac, new SecretKey(s.getRemote().macKey),
@@ -178,7 +176,6 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void verifySignature(byte[] signature, IntroduceeSession s)
 			throws GeneralSecurityException {
 		SecretKey macKey = new SecretKey(s.getRemote().macKey);

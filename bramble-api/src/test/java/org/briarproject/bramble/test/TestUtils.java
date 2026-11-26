@@ -243,12 +243,8 @@ public class TestUtils {
 
 	public static void writeBytes(File file, byte[] bytes)
 			throws IOException {
-		FileOutputStream outputStream = new FileOutputStream(file);
-		//noinspection TryFinallyCanBeTryWithResources
-		try {
+		try (FileOutputStream outputStream = new FileOutputStream(file)) {
 			outputStream.write(bytes);
-		} finally {
-			outputStream.close();
 		}
 	}
 

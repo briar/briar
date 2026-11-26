@@ -28,10 +28,10 @@ import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.nullsafety.NotNullByDefault;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -310,11 +310,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 						true);
 				if (latest == null) {
 					merged = new TransportProperties(p);
-					Iterator<String> it = merged.values().iterator();
-					//noinspection Java8CollectionRemoveIf
-					while (it.hasNext()) {
-						if (isNullOrEmpty(it.next())) it.remove();
-					}
+					merged.values().removeIf(StringUtils::isNullOrEmpty);
 					changed = true;
 				} else {
 					BdfList message = clientHelper.getMessageAsList(txn,

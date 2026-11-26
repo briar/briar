@@ -2492,12 +2492,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) {
 				MessageId m = new MessageId(rs.getBytes(1));
 				GroupId g = new GroupId(rs.getBytes(2));
-				Collection<MessageId> messageIds = ids.get(g);
-				//noinspection Java8MapApi
-				if (messageIds == null) {
-					messageIds = new ArrayList<>();
-					ids.put(g, messageIds);
-				}
+				Collection<MessageId> messageIds =
+						ids.computeIfAbsent(g, k -> new ArrayList<>());
 				messageIds.add(m);
 			}
 			rs.close();
@@ -2813,12 +2809,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) {
 				ContactId c = new ContactId(rs.getInt(1));
 				TransportId t = new TransportId(rs.getString(2));
-				Collection<TransportId> transportIds = ids.get(c);
-				//noinspection Java8MapApi
-				if (transportIds == null) {
-					transportIds = new ArrayList<>();
-					ids.put(c, transportIds);
-				}
+				Collection<TransportId> transportIds =
+						ids.computeIfAbsent(c, k -> new ArrayList<>());
 				transportIds.add(t);
 			}
 			rs.close();
