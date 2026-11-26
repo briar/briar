@@ -18,8 +18,9 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
+		coreLibraryDesugaringEnabled true
 	}
 	namespace 'org.briarproject.bramble'
 	lint {
@@ -55,6 +56,8 @@ dependencies {
 	annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
+
+	coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_version"
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 
