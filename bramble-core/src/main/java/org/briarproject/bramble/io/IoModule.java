@@ -34,7 +34,7 @@ public class IoModule {
 	@Singleton
 	WeakSingletonProvider<OkHttpClient> provideOkHttpClientProvider(
 			SocketFactory torSocketFactory, Dns noDnsLookups) {
-		return new WeakSingletonProvider<OkHttpClient>() {
+		return new WeakSingletonProvider<>() {
 			@Override
 			@Nonnull
 			public OkHttpClient createInstance() {

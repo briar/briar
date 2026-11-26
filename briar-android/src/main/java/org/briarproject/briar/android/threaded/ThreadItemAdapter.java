@@ -30,7 +30,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	private final ThreadItemListener<I> listener;
 
 	public ThreadItemAdapter(ThreadItemListener<I> listener) {
-		super(new DiffUtil.ItemCallback<I>() {
+		super(new DiffUtil.ItemCallback<>() {
 			@Override
 			public boolean areItemsTheSame(I a, I b) {
 				return a.equals(b);

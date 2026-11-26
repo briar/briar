@@ -19,7 +19,7 @@ class BlogPostAdapter extends ListAdapter<BlogPostItem, BlogPostViewHolder> {
 	private final OnBlogPostClickListener listener;
 
 	BlogPostAdapter(boolean authorClickable, OnBlogPostClickListener listener) {
-		super(new DiffUtil.ItemCallback<BlogPostItem>() {
+		super(new DiffUtil.ItemCallback<>() {
 			@Override
 			public boolean areItemsTheSame(BlogPostItem a, BlogPostItem b) {
 				return a.getId().equals(b.getId());

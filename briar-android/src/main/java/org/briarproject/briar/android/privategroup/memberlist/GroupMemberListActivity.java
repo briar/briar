@@ -113,19 +113,17 @@ public class GroupMemberListActivity extends BriarActivity
 	}
 
 	private void loadMembers() {
-		controller.loadMembers(groupId,
-				new UiResultExceptionHandler<Collection<MemberListItem>, DbException>(
-						this) {
-					@Override
-					public void onResultUi(Collection<MemberListItem> members) {
-						adapter.addAll(members);
-					}
+		controller.loadMembers(groupId, new UiResultExceptionHandler<>(this) {
+			@Override
+			public void onResultUi(Collection<MemberListItem> members) {
+				adapter.addAll(members);
+			}
 
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
+			@Override
+			public void onExceptionUi(DbException exception) {
+				handleException(exception);
+			}
+		});
 	}
 
 }

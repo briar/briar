@@ -28,7 +28,7 @@ public class TrustedIntents {
 
    private TrustedIntents(Context context) {
       pm = context.getPackageManager();
-      this.pinList = new LinkedHashSet<ApkSignaturePin>();
+      this.pinList = new LinkedHashSet<>();
    }
 
    public static TrustedIntents get(Context context) {

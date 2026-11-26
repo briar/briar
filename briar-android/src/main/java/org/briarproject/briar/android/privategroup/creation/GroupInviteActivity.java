@@ -59,7 +59,7 @@ public class GroupInviteActivity extends ContactSelectorActivity
 		if (groupId == null)
 			throw new IllegalStateException("GroupId was not initialized");
 		controller.sendInvitation(groupId, contacts, text,
-				new UiResultExceptionHandler<Void, DbException>(this) {
+				new UiResultExceptionHandler<>(this) {
 					@Override
 					public void onResultUi(Void result) {
 						setResult(RESULT_OK);

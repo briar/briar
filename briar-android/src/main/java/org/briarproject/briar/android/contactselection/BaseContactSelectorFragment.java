@@ -122,8 +122,7 @@ public abstract class BaseContactSelectorFragment<I extends BaseSelectableContac
 
 	private void loadContacts(Collection<ContactId> selection) {
 		getController().loadContacts(groupId, selection,
-				new UiResultExceptionHandler<Collection<I>, DbException>(
-						this) {
+				new UiResultExceptionHandler<>(this) {
 					@Override
 					public void onResultUi(Collection<I> contacts) {
 						if (contacts.isEmpty()) list.showData();

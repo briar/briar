@@ -53,11 +53,11 @@ public class ShareBlogActivity extends ShareActivity {
 	@Override
 	void share(Collection<ContactId> contacts, @Nullable String text) {
 		controller.share(groupId, contacts, text,
-				new UiExceptionHandler<DbException>(this) {
+				new UiExceptionHandler<>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
 						Toast.makeText(ShareBlogActivity.this,
-								R.string.blogs_sharing_error, LENGTH_SHORT)
+										R.string.blogs_sharing_error, LENGTH_SHORT)
 								.show();
 						handleException(exception);
 					}

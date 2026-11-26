@@ -33,7 +33,7 @@ class MailboxTestUtils {
 	}
 
 	static WeakSingletonProvider<OkHttpClient> createHttpClientProvider() {
-		return new WeakSingletonProvider<OkHttpClient>() {
+		return new WeakSingletonProvider<>() {
 			@Override
 			@Nonnull
 			public OkHttpClient createInstance() {

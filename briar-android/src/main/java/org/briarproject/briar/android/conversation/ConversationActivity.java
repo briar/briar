@@ -482,7 +482,7 @@ public class ConversationActivity extends BriarActivity
 				SelectionPredicates.createSelectAnything()
 		).build();
 
-		SelectionObserver<String> observer = new SelectionObserver<String>() {
+		SelectionObserver<String> observer = new SelectionObserver<>() {
 			@Override
 			public void onItemStateChanged(String key, boolean selected) {
 				if (selected && actionMode == null) {

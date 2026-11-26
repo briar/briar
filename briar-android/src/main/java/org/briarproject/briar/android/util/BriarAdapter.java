@@ -23,7 +23,7 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 
 	public BriarAdapter(Context ctx, Class<T> c) {
 		this.ctx = ctx;
-		this.items = new SortedList<>(c, new SortedList.Callback<T>() {
+		this.items = new SortedList<>(c, new SortedList.Callback<>() {
 			@Override
 			public int compare(T item1, T item2) {
 				return BriarAdapter.this.compare(item1, item2);

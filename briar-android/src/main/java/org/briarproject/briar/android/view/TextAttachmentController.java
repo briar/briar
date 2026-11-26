@@ -176,7 +176,7 @@ public class TextAttachmentController extends TextSendController
 		// store attachments and show preview when successful
 		LiveData<AttachmentResult> result =
 				attachmentManager.storeAttachments(imageUris, restart);
-		result.observe(attachmentListener, new Observer<AttachmentResult>() {
+		result.observe(attachmentListener, new Observer<>() {
 			@Override
 			public void onChanged(@Nullable AttachmentResult attachmentResult) {
 				if (attachmentResult == null) {
@@ -295,18 +295,17 @@ public class TextAttachmentController extends TextSendController
 			out.writeList(imageUris);
 		}
 
-		public static final Creator<SavedState> CREATOR =
-				new Creator<SavedState>() {
-					@Override
-					public SavedState createFromParcel(Parcel in) {
-						return new SavedState(in);
-					}
+		public static final Creator<SavedState> CREATOR = new Creator<>() {
+			@Override
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
 
-					@Override
-					public SavedState[] newArray(int size) {
-						return new SavedState[size];
-					}
-				};
+			@Override
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
 	}
 
 	@UiThread

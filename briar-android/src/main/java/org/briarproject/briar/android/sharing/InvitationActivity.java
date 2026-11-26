@@ -90,8 +90,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 	public void loadInvitations(boolean clear) {
 		int revision = adapter.getRevision();
 		getController().loadInvitations(clear,
-				new UiResultExceptionHandler<Collection<I>, DbException>(
-						this) {
+				new UiResultExceptionHandler<>(this) {
 					@Override
 					public void onResultUi(Collection<I> items) {
 						displayInvitations(revision, items, clear);
@@ -108,7 +107,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 
 	protected void respondToInvitation(I item, boolean accept) {
 		getController().respondToInvitation(item, accept,
-				new UiExceptionHandler<DbException>(this) {
+				new UiExceptionHandler<>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
 						handleException(exception);

@@ -119,7 +119,7 @@ public abstract class BriarActivity extends BaseActivity {
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {
-			briarController.hasDozed(new UiResultHandler<Boolean>(this) {
+			briarController.hasDozed(new UiResultHandler<>(this) {
 				@Override
 				public void onResultUi(Boolean result) {
 					if (result) showDozeDialog(R.string.dnkm_warning_dozed_1);

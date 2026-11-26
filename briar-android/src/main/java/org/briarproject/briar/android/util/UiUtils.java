@@ -445,7 +445,7 @@ public class UiUtils {
 	@UiThread
 	public static <T> void observeOnce(LiveData<T> liveData,
 			LifecycleOwner owner, Observer<T> observer) {
-		liveData.observe(owner, new Observer<T>() {
+		liveData.observe(owner, new Observer<>() {
 			@Override
 			public void onChanged(@Nullable T t) {
 				observer.onChanged(t);
@@ -463,7 +463,7 @@ public class UiUtils {
 	@UiThread
 	public static <T> void observeForeverOnce(LiveData<T> liveData,
 			Observer<T> observer) {
-		liveData.observeForever(new Observer<T>() {
+		liveData.observeForever(new Observer<>() {
 			@Override
 			public void onChanged(@Nullable T t) {
 				observer.onChanged(t);

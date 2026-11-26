@@ -36,18 +36,17 @@ public class AttachmentItem implements Parcelable {
 	private final int thumbnailWidth, thumbnailHeight;
 	private final State state;
 
-	public static final Creator<AttachmentItem> CREATOR =
-			new Creator<AttachmentItem>() {
-				@Override
-				public AttachmentItem createFromParcel(Parcel in) {
-					return new AttachmentItem(in);
-				}
+	public static final Creator<AttachmentItem> CREATOR = new Creator<>() {
+		@Override
+		public AttachmentItem createFromParcel(Parcel in) {
+			return new AttachmentItem(in);
+		}
 
-				@Override
-				public AttachmentItem[] newArray(int size) {
-					return new AttachmentItem[size];
-				}
-			};
+		@Override
+		public AttachmentItem[] newArray(int size) {
+			return new AttachmentItem[size];
+		}
+	};
 
 	AttachmentItem(AttachmentHeader header, int width, int height,
 			String extension, int thumbnailWidth, int thumbnailHeight,

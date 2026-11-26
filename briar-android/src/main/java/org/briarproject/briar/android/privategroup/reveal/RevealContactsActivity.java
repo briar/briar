@@ -71,18 +71,17 @@ public class RevealContactsActivity extends ContactSelectorActivity
 	@Override
 	public void onStart() {
 		super.onStart();
-		controller.isOnboardingNeeded(
-				new UiResultExceptionHandler<Boolean, DbException>(this) {
-					@Override
-					public void onResultUi(Boolean show) {
-						if (show) showOnboardingDialog();
-					}
+		controller.isOnboardingNeeded(new UiResultExceptionHandler<>(this) {
+			@Override
+			public void onResultUi(Boolean show) {
+				if (show) showOnboardingDialog();
+			}
 
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
+			@Override
+			public void onExceptionUi(DbException exception) {
+				handleException(exception);
+			}
+		});
 	}
 
 	@Override
@@ -115,13 +114,12 @@ public class RevealContactsActivity extends ContactSelectorActivity
 	}
 
 	private void onboardingShown() {
-		controller.onboardingShown(
-				new UiExceptionHandler<DbException>(this) {
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
+		controller.onboardingShown(new UiExceptionHandler<>(this) {
+			@Override
+			public void onExceptionUi(DbException exception) {
+				handleException(exception);
+			}
+		});
 	}
 
 	@Override
@@ -132,13 +130,12 @@ public class RevealContactsActivity extends ContactSelectorActivity
 
 	@Override
 	public void onClick(View v) {
-		controller.reveal(groupId, contacts,
-				new UiExceptionHandler<DbException>(this) {
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
+		controller.reveal(groupId, contacts, new UiExceptionHandler<>(this) {
+			@Override
+			public void onExceptionUi(DbException exception) {
+				handleException(exception);
+			}
+		});
 		supportFinishAfterTransition();
 	}
 

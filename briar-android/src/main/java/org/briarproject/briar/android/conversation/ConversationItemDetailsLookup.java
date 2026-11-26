@@ -37,7 +37,7 @@ class ConversationItemDetailsLookup extends ItemDetailsLookup<String > {
 		String id = holder.getItemKey();
 		if (id == null) return null;
 
-		return new ItemDetails<String>() {
+		return new ItemDetails<>() {
 			@Override
 			public int getPosition() {
 				return pos;

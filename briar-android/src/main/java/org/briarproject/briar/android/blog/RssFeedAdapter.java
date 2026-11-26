@@ -25,7 +25,7 @@ class RssFeedAdapter extends ListAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 	private final RssFeedListener listener;
 
 	RssFeedAdapter(RssFeedListener listener) {
-		super(new DiffUtil.ItemCallback<Feed>() {
+		super(new DiffUtil.ItemCallback<>() {
 			@Override
 			public boolean areItemsTheSame(Feed a, Feed b) {
 				return a.getBlogId().equals(b.getBlogId()) &&

@@ -67,7 +67,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 	private final OkHttpClient client = new OkHttpClient.Builder().build();
 	private final WeakSingletonProvider<OkHttpClient> httpClientProvider =
-			new WeakSingletonProvider<OkHttpClient>() {
+			new WeakSingletonProvider<>() {
 				@Override
 				@Nonnull
 				public OkHttpClient createInstance() {

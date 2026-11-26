@@ -53,11 +53,11 @@ public class ShareForumActivity extends ShareActivity {
 	@Override
 	void share(Collection<ContactId> contacts, @Nullable String text) {
 		controller.share(groupId, contacts, text,
-				new UiExceptionHandler<DbException>(this) {
+				new UiExceptionHandler<>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
 						Toast.makeText(ShareForumActivity.this,
-								R.string.forum_share_error, LENGTH_SHORT)
+										R.string.forum_share_error, LENGTH_SHORT)
 								.show();
 						handleException(exception);
 					}
