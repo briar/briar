@@ -43,7 +43,7 @@ import static com.fasterxml.jackson.databind.MapperFeature.BLOCK_UNSAFE_POLYMORP
 import static java.util.Collections.sort;
 import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
-import static okhttp3.internal.Util.EMPTY_REQUEST;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 
@@ -54,6 +54,8 @@ class MailboxApiImpl implements MailboxApi {
 			requireNonNull(MediaType.parse("application/json; charset=utf-8"));
 	private static final MediaType FILE =
 			requireNonNull(MediaType.parse("application/octet-stream"));
+	private static final RequestBody EMPTY_REQUEST =
+			RequestBody.create("", null);
 
 	private final WeakSingletonProvider<OkHttpClient> httpClientProvider;
 	private final JsonMapper mapper = JsonMapper.builder()

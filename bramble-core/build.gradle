@@ -1,7 +1,7 @@
 apply plugin: 'java-library'
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 apply plugin: 'ru.vyarus.animalsniffer'
@@ -14,8 +14,9 @@ dependencies {
 	api "org.briarproject:onionwrapper-core:$onionwrapper_version"
 
 	implementation "org.bouncycastle:bcprov-jdk15to18:$bouncy_castle_version"
-	//noinspection GradleDependency
-	implementation 'com.h2database:h2:1.4.192' // The last version that supports Java 1.6
+	// Later 1.4.x and 2.x versions use incompatible DB file formats, see
+	// https://github.com/h2database/h2database/issues/3404
+	implementation 'com.h2database:h2:1.4.192'
 	implementation 'org.bitlet:weupnp:0.1.4'
 	implementation 'net.i2p.crypto:eddsa:0.3.0'
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
@@ -27,7 +28,7 @@ dependencies {
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 
-	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
+	testImplementation 'org.hsqldb:hsqldb:2.7.4'
 	testImplementation 'net.jodah:concurrentunit:0.4.6'
 	testImplementation "junit:junit:$junit_version"
 	testImplementation "org.jmock:jmock:$jmock_version"

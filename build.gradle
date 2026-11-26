@@ -27,12 +27,12 @@ buildscript {
 	ext {
 		kotlin_version = '2.2.21'
 		dagger_version = "2.60.1"
-		okhttp_version = "4.12.0"
-		jackson_version = "2.13.5" // Newer versions require Android API 26
+		okhttp_version = '5.5.1'
+		jackson_version = '2.13.5' // Later versions require API 26, even with desugaring
 		tor_version = "0.4.9.15"
 		lyrebird_version = "0.6.2"
-		jsoup_version = '1.15.3' // TODO: Fix NoClassDefFoundError on API 21 with version 1.23.2
-		bouncy_castle_version = '1.82'
+		jsoup_version = '1.24.1'
+		bouncy_castle_version = '1.87'
 		junit_version = "4.13.2"
 		jmock_version = '2.13.1'
 		mockwebserver_version = '4.12.0'
