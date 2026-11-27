@@ -66,7 +66,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static java.util.Collections.singletonList;
-import static java.util.Collections.sort;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -425,10 +424,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 		return db.transactionWithResult(false, txn -> {
 			long lastEntryTime = feed.getLastEntryTime();
-			// Getting Animal Sniffer to ignore this inside a lambda is more
-			// trouble than it's worth
-			//noinspection Java8ListSort
-			sort(entries, getEntryComparator());
+			entries.sort(getEntryComparator());
 			for (SyndEntry entry : entries) {
 				long entryTime;
 				if (entry.getPublishedDate() != null) {
