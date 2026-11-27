@@ -41,6 +41,7 @@ import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.api.feed.RssProperties;
 import org.briarproject.nullsafety.NotNullByDefault;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -397,9 +398,16 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 		// Execute Request
 		OkHttpClient client = httpClientProvider.get();
-		try (Response response = client.newCall(request).execute()) {
-			return response.body().byteStream();
-		}
+		// Close the response when we've finished reading the body
+		//noinspection resource
+		Response response = client.newCall(request).execute();
+		return new FilterInputStream(response.body().byteStream()) {
+			@Override
+			public void close() throws IOException {
+				super.close();
+				response.close();
+			}
+		};
 	}
 
 	private SyndFeed getSyndFeed(InputStream stream) throws IOException {
